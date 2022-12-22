@@ -1,13 +1,16 @@
 class Boids {
-    static numBoids = 200;
-    static visualRange = 75;
     static DRAW_TRAIL = true;
 
-    centeringFactor = 0.005;
+    numBoids = 200;
+    speedLimit = 15;
+    visualRange = 75;
     minDistance = 20;
+
+    centeringFactor = 0.005;
+
     avoidFactor = 0.05;
     matchingFactor = 0.05;
-    speedLimit = 15;
+
     margin = 100;
     turnFactor = 1;
 
@@ -16,7 +19,7 @@ class Boids {
     height = 150;
 
     initBoids() {
-        this.boids = Array.from({ length: Boids.numBoids }, (x, i) => i)
+        this.boids = Array.from({ length: this.getSliderNumBoids() }, (x, i) => i)
             .map(num => {
                 return {
                     x: Math.random() * this.width,
@@ -55,9 +58,10 @@ class Boids {
         }
     }
 
+
     flyTowardsCenter(boid) {
         const calc = this.boids
-            .filter(otherBoid => this.distance(boid, otherBoid) < Boids.visualRange)
+            .filter(otherBoid => this.distance(boid, otherBoid) < this.getSliderVisualRange())
             .reduce((acc, curr) => {
                 return {
                     numNeighbors: acc.numNeighbors + curr.numNeighbors + 1,
@@ -80,7 +84,7 @@ class Boids {
 
     avoidOthers(boid) {
         const calc = this.boids
-            .filter(otherBoid => otherBoid !== boid && (this.distance(boid, otherBoid) < this.minDistance))
+            .filter(otherBoid => otherBoid !== boid && (this.distance(boid, otherBoid) < this.getSliderMinDistance()))
             .reduce((acc, curr) => {
                 return {
                     moveX: acc.moveX + boid.x - curr.x,
@@ -97,7 +101,7 @@ class Boids {
 
     matchVelocity(boid) {
         const calc = this.boids
-            .filter(otherBoid => this.distance(boid, otherBoid) < Boids.visualRange)
+            .filter(otherBoid => this.distance(boid, otherBoid) < this.getSliderVisualRange())
             .reduce((acc, curr) => {
                 return {
                     numNeighbors: acc.numNeighbors + 1,
@@ -121,9 +125,9 @@ class Boids {
 
     limitSpeed(boid) {
         const speed = Math.sqrt(Math.pow(boid.dx, 2) + Math.pow(boid.dy, 2));
-        if (speed > this.speedLimit) {
-            boid.dx = (boid.dx / speed) * this.speedLimit;
-            boid.dy = (boid.dy / speed) * this.speedLimit;
+        if (speed > this.getSliderSpeedLimit()) {
+            boid.dx = (boid.dx / speed) * this.getSliderSpeedLimit();
+            boid.dy = (boid.dy / speed) * this.getSliderSpeedLimit();
         }
     }
 
@@ -158,6 +162,24 @@ class Boids {
         ctx.clearRect(0, 0, this.width, this.height);
         return ctx;
     }
+    
+    getSliderSpeedLimit() {
+        return document.getElementById("speedLimit").value ? document.getElementById("speedLimit").value : this.speedLimit;
+    }
+  
+    getSliderNumBoids() {
+        this.numBoids = document.getElementById("numBoids").value;
+        return document.getElementById("numBoids").value;
+    }
+
+    getSliderVisualRange() {
+        return document.getElementById("visualRange").value;
+    }
+
+    getSliderMinDistance() {
+        return document.getElementById("minDistance").value;
+    }
+
 
     updatBoid(boid) {
         this.flyTowardsCenter(boid);
@@ -190,9 +212,16 @@ class Boids {
     load() {
         window.onload = () => {
             window.addEventListener("resize", () => { this.sizeCanvas(); }, false);
-            window.addEventListener("pageshow", () => { this.sizeCanvas(); this.initBoids(); }, false);
+            window.addEventListener("pageshow", () => { this.sizeCanvas(); 
+                this.initBoids(); 
+                document.getElementById("numBoids").addEventListener("change", event=> {
+                    this.initBoids();
+                });
+            
+            }, false);
             window.requestAnimationFrame(() => { this.animationLoop(); });
         };
+
 
     }
 

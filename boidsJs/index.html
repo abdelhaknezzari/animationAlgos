@@ -1,18 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>Boids</title>
-    <script src="./boids.js"></script>
-    <style type="text/css">
-      body {
-        margin: 0;
-        background: #282c34;
-        overflow: hidden;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="boids" width="150" height="150"></canvas>
-  </body>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Boids</title>
+  <script src="./boids.js"></script>
+  <style type="text/css">
+    body {
+      margin: 0;
+      background: #282c34;
+      overflow: hidden;
+    }
+
+    .row {
+      width: 100%;
+      margin: 3 auto;
+    }
+
+    .block {
+      float: left;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="row">
+    <div class="block">
+      <label for="speedLimit">Speed Limit:</label>
+      <input type="range" id="speedLimit" name="SpeedLimit" min="0" max="150" value="15" >
+
+    </div>
+
+    <div class="block">
+      <label for="numBoids">Number Of Boids</label>
+      <input type="range" id="numBoids" name="numBoids" min="0" max="300" value="100" >
+    </div>
+
+    <div class="block">
+      <label for="visualRange">Visual Range:</label>
+      <input type="range" id="visualRange" name="visualRange" min="0" max="300" value="75" >
+    </div>
+
+    <div class="block">
+      <label for="minDistance">Min Distance:</label>
+      <input type="range" id="minDistance" name="minDistance" min="0" max="300" value="20" >
+    </div>
+
+  </div>
+  <canvas id="boids" width="95%" height="95%"></canvas>
+
+
+</body>
+
 </html>
