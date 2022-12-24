@@ -72,18 +72,18 @@ class Frame {
       this.visual[j].cone.up = this.visual.THREEq[j];
       scene.add(this.visual[j].axis); scene.add(this.visual[j].cone);
     }
-
-    //show/hide fucntions
-    this.visual.visible = function (t) {
-      //this points to visual
-      this.x.axis.visible = t;
-      this.x.cone.visible = t;
-      this.y.axis.visible = t;
-      this.y.cone.visible = t;
-      this.z.axis.visible = t;
-      this.z.cone.visible = t;
-    };
   }
+      //show/hide fucntions
+  visible(t) {
+        //this points to visual
+        this.x.axis.visible = t;
+        this.x.cone.visible = t;
+        this.y.axis.visible = t;
+        this.y.cone.visible = t;
+        this.z.axis.visible = t;
+        this.z.cone.visible = t;
+  }
+
   syncVisual() {
     //sync THREE.Vector3 format vectors from data
     this.visual.THREEq.o.fromArray(this.o);
