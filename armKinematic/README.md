@@ -1,6 +1,6 @@
 
 # Source Repo:
-from archived repo [](https://github.com/jlpaca/kinematik) some OO improvments
+from archived repo [source](https://github.com/jlpaca/kinematik), add some OO improvments
 
 # Kinematik
 
