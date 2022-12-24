@@ -5,7 +5,7 @@ class World {
 
   //timestep
   t = 0;
-  dt = 1e-2;
+  dt = 1e-4;
 
   timestep() {
     this.t += this.dt;

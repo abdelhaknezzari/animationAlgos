@@ -62,7 +62,7 @@ class KinematicLink {
       }
     }
   
-    extend = function (params) {
+    extend(params) {
       //append new link to tip of present chain.
       //traverse down tree if not already at tip.
       if (this.child instanceof KinematicLink) {
