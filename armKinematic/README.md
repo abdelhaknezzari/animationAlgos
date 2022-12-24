@@ -1,3 +1,7 @@
+
+#Source Repo:
+from archived repo [](https://github.com/jlpaca/kinematik) some OO improvments
+
 # Kinematik
 
 _Kinematik_ was a small web-based tool for the simulation and visualisation of articulate robots, written in 2016. It was written in javascript and should still run on modern browsers with webGL support.
