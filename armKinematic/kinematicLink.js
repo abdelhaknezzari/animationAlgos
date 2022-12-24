@@ -1,5 +1,9 @@
 class KinematicLink {
     VEC4 = new Vec4();
+          //kinematic data
+    frame = new Frame();
+    DH = new DenavitHartenberg();
+
     constructor(params) {
       //create empty kinematic link object.
   
@@ -15,9 +19,7 @@ class KinematicLink {
       //joint type. Only revolute joints supported for now.
       this.jointType = params.type;
       this.jointRange = [0, 0];
-      //kinematic data
-      this.frame = new Frame();
-      this.DH = new DenavitHartenberg();
+
   
       this.M = numeric.identity(4);
       this.T = numeric.identity(4);
