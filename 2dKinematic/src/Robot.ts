@@ -15,6 +15,7 @@ export class Robot {
     position = { x: 130, y: 145, theta: Math.PI / 2 };
     speed ={vRight:100, vLeft:100};
 
+
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
         addEventListener('click', (event) => {
