@@ -1,3 +1,13 @@
+import { Speed } from "./SpeedController";
+
+
+export interface Position {
+    x: number, // position coordinate x
+    y: number, // position coordinate y
+    th: number // theta orientation of robot in 2 Dimention
+}
+
+
 export class Robot {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -11,9 +21,9 @@ export class Robot {
         WheelW: 5,
         WheelR: 5,
     };
-    dt = 0.002;
-    position = { x: 130, y: 145, theta: Math.PI / 2 };
-    speed ={vRight:100, vLeft:100};
+    dt = 0.01;
+    position = { x: 130, y: 145, th: Math.PI / 2 } as Position;
+    speed ={right:100, left:100} as Speed;
 
 
     constructor() {
@@ -24,17 +34,17 @@ export class Robot {
         // this.plotRobot(268, 234);
     }
 
-    plotCircle(x = 25, y = 25, theta = 30) {
+    plotCircle(poistion:Position) {
         this.context.beginPath();
-        this.context.arc(x, y, 15, 0, Math.PI * 2, true);
+        this.context.arc(poistion.x, poistion.y, 15, 0, Math.PI * 2, true);
         this.context.closePath();
         this.context.fill();
 
     }
 
-    plotRobot(x = 25, y = 25, theta = 30) {
-        this.context.translate(x, y);
-        this.context.rotate(theta);
+    plotRobot(poistion:Position) {
+        this.context.translate(poistion.x, poistion.y);
+        this.context.rotate(poistion.th);
         this.context.fillStyle = "#0095DD";
         this.context.fillRect(0, 0, this.robotAttr.height, this.robotAttr.width);
 
@@ -61,34 +71,30 @@ export class Robot {
 
     }
 
-    animate(): void {
-   
-        if(this.position.x >= (this.canvas.width  - 50) ||
-           this.position.y >= (this.canvas.height - 50)) {
-             this.speed.vLeft *= -1;
-             this.speed.vRight *= -1;
-        }
+    getPosition():Position {
+      return this.position;
+    }
 
-        const delta = this.kinematic( this.speed.vLeft ,  this.speed.vRight);
+    getSpeed():Speed {
+        return this.speed;
+      }
+
+    animate(speed:Speed): void {
+        this.speed = speed;
+        
+        const delta = this.kinematic(speed.left ,speed.right);
 
         this.position.x += delta.dx;
         this.position.y += delta.dy;
-        this.position.theta += delta.dth;
-
-        if (this.counter % 1 === 0) {
-            this.context.clearRect(0, 0, 788, 899);
+        this.position.th += delta.dth;
             // this.plotRobot(this.position.x, this.position.y, this.position.theta);
-            this.plotCircle(this.position.x, this.position.y, this.position.theta);
-        }
+        this.plotCircle( this.position);
 
-        this.counter += 1;
-
-        window.requestAnimationFrame(() => { this.animate() });
     }
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
         const dth = (0.5 * this.robotAttr.WheelR / this.robotAttr.width) * (-rightWheelSpeed + leftWeelSpeed) * this.dt;
-        const theta = this.position.theta + dth;
+        const theta = this.position.th + dth;
         const dx = this.robotAttr.WheelR * 0.5 * Math.cos(theta) * (rightWheelSpeed + leftWeelSpeed) * this.dt;
         const dy = this.robotAttr.WheelR * 0.5 * Math.sin(theta) * (rightWheelSpeed + leftWeelSpeed) * this.dt;
 
