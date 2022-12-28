@@ -17,13 +17,13 @@ export class Robot {
     robotAttr = {
         width: 50,
         height: 50,
-        wheelH: 10,
-        WheelW: 5,
-        WheelR: 5,
+        wheelH: 0.10,
+        WheelW: 0.5,
+        WheelR: 0.2,
     };
     dt = 0.01;
     position = { x: 130, y: 145, th: Math.PI / 2 } as Position;
-    speed ={right:100, left:100} as Speed;
+    speed ={right:1000, left:1000} as Speed;
 
 
     constructor() {
@@ -39,6 +39,44 @@ export class Robot {
         this.context.arc(poistion.x, poistion.y, 15, 0, Math.PI * 2, true);
         this.context.closePath();
         this.context.fill();
+    }
+
+    plotRobot2( poistion:Position ) {
+        let previousPosition = poistion;
+
+        const moveAndTurn = (d:number,th:number) => {  
+            const xCoord = previousPosition.x+d * Math.cos( th * Math.PI / 180);
+            const yCoord = previousPosition.y+d * Math.sin( th * Math.PI / 180);
+            previousPosition = {x:xCoord,y:yCoord,th};
+            this.context.lineTo( xCoord , yCoord);
+        };
+
+  
+        this.context.moveTo(poistion.x, poistion.y+2);
+        moveAndTurn(50,90);
+        moveAndTurn(20,-180-45);
+        moveAndTurn(3,-180-90-45);
+        moveAndTurn(18,-45);
+        moveAndTurn(30,0);
+        moveAndTurn(20,45);
+        moveAndTurn(3,-45);
+        moveAndTurn(18,180+45);
+
+          moveAndTurn(50,-90);
+          moveAndTurn(20,-45);
+         moveAndTurn(3,-135);
+         moveAndTurn(20,-225);
+          moveAndTurn(30,180);
+         moveAndTurn(20,-90-45);
+         moveAndTurn(3,-180-45);
+         moveAndTurn(20,-180-90-45);
+  
+
+
+
+        this.context.stroke();
+         this.context.fill();
+       
 
     }
 
@@ -88,15 +126,18 @@ export class Robot {
         this.position.y += delta.dy;
         this.position.th += delta.dth;
             // this.plotRobot(this.position.x, this.position.y, this.position.theta);
-        this.plotCircle( this.position);
+        // this.plotCircle( this.position);
+        this.plotRobot2(this.position);
 
     }
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
-        const dth = (0.5 * this.robotAttr.WheelR / this.robotAttr.width) * (-rightWheelSpeed + leftWeelSpeed) * this.dt;
+        const linearVelocity = (rightWheelSpeed + leftWeelSpeed)/2;
+        const angularVelocity = rightWheelSpeed - leftWeelSpeed;
+        const dth = (2 * Math.PI * this.robotAttr.WheelR / this.robotAttr.width) * angularVelocity * this.dt;
         const theta = this.position.th + dth;
-        const dx = this.robotAttr.WheelR * 0.5 * Math.cos(theta) * (rightWheelSpeed + leftWeelSpeed) * this.dt;
-        const dy = this.robotAttr.WheelR * 0.5 * Math.sin(theta) * (rightWheelSpeed + leftWeelSpeed) * this.dt;
+        const dx = this.robotAttr.WheelR * linearVelocity * Math.cos(theta) * this.dt;
+        const dy = this.robotAttr.WheelR * linearVelocity * Math.sin(theta) * this.dt;
 
         return { dx, dy, dth };
     }

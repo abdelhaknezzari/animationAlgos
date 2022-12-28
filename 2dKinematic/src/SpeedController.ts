@@ -11,7 +11,7 @@ export class SpeedController {
         if( obstacleDistances.some( point => point.d < 40 ) ) {
             return {
                right: currentSpeed.right * (-1),
-               left: currentSpeed.left * (-1),
+               left: currentSpeed.left * (1),
             }
 
         }

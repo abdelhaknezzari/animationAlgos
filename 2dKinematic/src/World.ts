@@ -19,10 +19,9 @@ export class World {
        this.obstacles.show();
        const distances = this.obstacles.calcDistances(this.robot.getPosition());
        const speed = this.conroller.calcWheelsSpeed(distances, this.robot.getSpeed());
-
-       this.robot.animate(speed);  
-       
-       window.requestAnimationFrame(() => { this.animate() });
+       this.robot.plotRobot2({x:240,y:240,th:0});
+      this.robot.animate(speed);     
+      window.requestAnimationFrame(() => { this.animate() });
     }
 
     clear(){
