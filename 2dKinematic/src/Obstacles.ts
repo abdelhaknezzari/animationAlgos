@@ -1,4 +1,5 @@
 import { Position } from "./Robot";
+import { Sensor } from "./SonarSensors";
 
 
 export interface Point {
@@ -15,11 +16,9 @@ export class Obstacles {
 
     walls: Array<Array<Point>>;
     obstacles: Array<Point>;
-    static rWall = 3;
+    static rWall = 0.5;
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
-        addEventListener('click', (event) => {
-        });
         this.context = this.canvas.getContext("2d");
         this.generateObstacles();
     }
@@ -30,10 +29,40 @@ export class Obstacles {
             Array.from({ length: this.canvas.height }, (_, key) => key).map(num => { return { x: this.canvas.width, y: num }; }) as [Point],
             Array.from({ length: this.canvas.width  }, (_, key) => key).map(num => { return { x: num, y: this.canvas.height}; }) as [Point],
             Array.from({ length: this.canvas.width  }, (_, key) => key).map(num => { return { x: num, y: 0}; }) as [Point],
-            Array.from({ length: this.canvas.width*0.5  }, (_, key) => key).map(num => { return { x: num, y: this.canvas.height*0.5 }; }) as [Point]
-
+            Array.from({ length: this.canvas.width*0.7  }, (_, key) => key).map(num => { return { x: num, y: this.canvas.height*0.3 }; }) as [Point],
+            Array.from({ length: this.canvas.width*0.7  }, (_, key) => key).map(num => { return { x: this.canvas.width - num, y: this.canvas.height*0.7 }; }) as [Point]
         ];
     }
+
+     calcDistancesFromSensors(sensors:Sensor[]) {
+        const wallsPoints = this.walls.reduce( (prv,cur) => prv.concat(cur),[] );
+        const sensDist = sensors.map(
+            sensor => 
+             {
+             return {
+                d:wallsPoints.map(
+                    wallPoint => {
+                       return {
+                        x:wallPoint.x,
+                        y:wallPoint.y,
+                        d: this.distanceBetweenRobotAndObstacle({x:sensor.x,y:sensor.y,th:null },wallPoint)      
+                       } as Point;
+                    }
+                ).sort( (prv,cur) =>  {
+                    if( prv.d < cur.d) {
+                        return -1;
+                    } else if( prv.d > cur.d) {
+                        return 1;
+                    } else {
+                        return 0;
+                    };
+                })[0]?.d,
+                side:sensor.side
+             };
+            }
+        );
+        return sensDist;
+     }
 
     calcDistances( robotPosition:Position) {
         return this.walls.reduce( (prv,cur) => prv.concat(cur),[] ).map(

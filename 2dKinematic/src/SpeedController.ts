@@ -8,10 +8,10 @@ export interface Speed {
 export class SpeedController {
 
      calcWheelsSpeed( obstacleDistances: Array<Point>,currentSpeed:Speed  ) {
-        if( obstacleDistances.some( point => point.d < 40 ) ) {
+        if( obstacleDistances.some( point => point.d < 10 ) ) {
             return {
                right: currentSpeed.right * (-1),
-               left: currentSpeed.left * (1),
+               left: currentSpeed.left * (-1),
             }
 
         }

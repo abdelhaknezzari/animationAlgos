@@ -1,4 +1,6 @@
 import { Speed } from "./SpeedController";
+import { Point } from "./Obstacles";
+import { Sensor, SonarSensors } from "./SonarSensors";
 
 
 export interface Position {
@@ -11,134 +13,109 @@ export interface Position {
 export class Robot {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-
-    counter = 0;
-
-    robotAttr = {
-        width: 50,
-        height: 50,
-        wheelH: 0.10,
-        WheelW: 0.5,
-        WheelR: 0.2,
+    static robotAttr = {
+        WheelR: 5,
+        rH: 50,
+        rW: 30,
+        rSL: 20,
+        rSW: 3
     };
+
+    static RSLCos45 = Math.cos(Math.PI / 4) * Robot.robotAttr.rSL;
+
     dt = 0.01;
+
     position = { x: 130, y: 145, th: Math.PI / 2 } as Position;
-    speed ={right:1000, left:1000} as Speed;
+    speed = { right: 100, left: 100 } as Speed;
+    sonarSensors=new SonarSensors();
 
 
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
-        addEventListener('click', (event) => {
-        });
         this.context = this.canvas.getContext("2d");
-        // this.plotRobot(268, 234);
     }
 
-    plotCircle(poistion:Position) {
+    plotCircle(poistion: Position) {
         this.context.beginPath();
-        this.context.arc(poistion.x, poistion.y, 15, 0, Math.PI * 2, true);
+        const defaultColor = this.context.fillStyle;
+        this.context.fillStyle = "orange";
+        this.context.arc(poistion.x, poistion.y, 3, 0, Math.PI * 2, true);
         this.context.closePath();
         this.context.fill();
+        this.context.fillStyle = defaultColor;
     }
 
-    plotRobot2( poistion:Position ) {
+    plotRobot(poistion: Position) {
         let previousPosition = poistion;
 
-        const moveAndTurn = (d:number,th:number) => {  
-            const xCoord = previousPosition.x+d * Math.cos( th * Math.PI / 180);
-            const yCoord = previousPosition.y+d * Math.sin( th * Math.PI / 180);
-            previousPosition = {x:xCoord,y:yCoord,th};
-            this.context.lineTo( xCoord , yCoord);
+        const moveAndTurn = (d: number, th: number) => {
+            const xCoord = previousPosition.x + d * Math.cos(th * Math.PI / 180);
+            const yCoord = previousPosition.y + d * Math.sin(th * Math.PI / 180);
+            previousPosition = { x: xCoord, y: yCoord, th };
+            this.context.lineTo(xCoord, yCoord);
         };
+        this.context.moveTo(poistion.x, poistion.y  + 2);
+        //
 
-  
-        this.context.moveTo(poistion.x, poistion.y+2);
-        moveAndTurn(50,90);
-        moveAndTurn(20,-180-45);
-        moveAndTurn(3,-180-90-45);
-        moveAndTurn(18,-45);
-        moveAndTurn(30,0);
-        moveAndTurn(20,45);
-        moveAndTurn(3,-45);
-        moveAndTurn(18,180+45);
-
-          moveAndTurn(50,-90);
-          moveAndTurn(20,-45);
-         moveAndTurn(3,-135);
-         moveAndTurn(20,-225);
-          moveAndTurn(30,180);
-         moveAndTurn(20,-90-45);
-         moveAndTurn(3,-180-45);
-         moveAndTurn(20,-180-90-45);
-  
-
-
-
+        moveAndTurn(Robot.robotAttr.rH , 90 + poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL, -180 - 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSW, -180 - 90 - 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL - 2, -45+ poistion.th );
+        moveAndTurn((Robot.robotAttr.rW - 4) / 2,  poistion.th );
+        moveAndTurn(4, 90+ poistion.th );
+        moveAndTurn(4, 0+ poistion.th );
+        moveAndTurn(4, -90+ poistion.th );
+        moveAndTurn((Robot.robotAttr.rW - 4) / 2, 0+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL, 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSW, -45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL - 2, 180 + 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rH, -90+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL, -45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSW, -135+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL - 2, -225+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rW, 180+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL, -90 - 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSW, -180 - 45+ poistion.th );
+        moveAndTurn(Robot.robotAttr.rSL, -180 - 90 - 45+ poistion.th );
         this.context.stroke();
-         this.context.fill();
-       
+        this.context.fill();
 
     }
 
-    plotRobot(poistion:Position) {
-        this.context.translate(poistion.x, poistion.y);
-        this.context.rotate(poistion.th);
-        this.context.fillStyle = "#0095DD";
-        this.context.fillRect(0, 0, this.robotAttr.height, this.robotAttr.width);
-
-        this.context.fillStyle = "#FFCC99";
-        this.context.fillRect(this.robotAttr.width + this.robotAttr.WheelW - 8,
-            this.robotAttr.height - this.robotAttr.wheelH + 3,
-            12,
-            4);
-
-        this.context.fillRect(- this.robotAttr.wheelH + 2,
-            this.robotAttr.height - this.robotAttr.wheelH + 3,
-            12,
-            4);
-
-        this.context.fillStyle = "#B252C3";
-        this.context.fillRect(- this.robotAttr.wheelH,
-            this.robotAttr.height - this.robotAttr.wheelH,
-            this.robotAttr.WheelW,
-            this.robotAttr.wheelH);
-        this.context.fillRect(this.robotAttr.width + this.robotAttr.WheelW,
-            this.robotAttr.height - this.robotAttr.wheelH,
-            this.robotAttr.WheelW,
-            this.robotAttr.wheelH);
-
+    getPosition(): Position {
+        return this.position;
     }
 
-    getPosition():Position {
-      return this.position;
-    }
-
-    getSpeed():Speed {
+    getSpeed(): Speed {
         return this.speed;
-      }
+    }
 
-    animate(speed:Speed): void {
+    animate(speed: Speed): void {
         this.speed = speed;
-        
-        const delta = this.kinematic(speed.left ,speed.right);
+        this.calcNewPosition(speed);
+        this.plotRobot(this.position);
+        this.sonarSensors.show(this.position);
+    }
 
-        this.position.x += delta.dx;
-        this.position.y += delta.dy;
+    calcNewPosition(speed: Speed) {
+        const delta = this.kinematic(speed.left, speed.right);
+        this.position.x += delta.dx ;
+        this.position.y += delta.dy ;
         this.position.th += delta.dth;
-            // this.plotRobot(this.position.x, this.position.y, this.position.theta);
-        // this.plotCircle( this.position);
-        this.plotRobot2(this.position);
-
     }
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
-        const linearVelocity = (rightWheelSpeed + leftWeelSpeed)/2;
+        const linearVelocity = (rightWheelSpeed + leftWeelSpeed) / 2;
         const angularVelocity = rightWheelSpeed - leftWeelSpeed;
-        const dth = (2 * Math.PI * this.robotAttr.WheelR / this.robotAttr.width) * angularVelocity * this.dt;
+        const dth = (2 * Math.PI * Robot.robotAttr.WheelR / Robot.robotAttr.rW) * angularVelocity * this.dt;
         const theta = this.position.th + dth;
-        const dx = this.robotAttr.WheelR * linearVelocity * Math.cos(theta) * this.dt;
-        const dy = this.robotAttr.WheelR * linearVelocity * Math.sin(theta) * this.dt;
+        const dx = Robot.robotAttr.WheelR * linearVelocity * Math.cos(theta) * this.dt;
+        const dy = Robot.robotAttr.WheelR * linearVelocity * Math.sin(theta) * this.dt;
 
         return { dx, dy, dth };
+    }
+
+    getSensors():Array<Sensor> {
+        return this.sonarSensors.calcSensorsPositions(this.getPosition());
     }
 }
