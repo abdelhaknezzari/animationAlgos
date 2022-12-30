@@ -1,13 +1,19 @@
 import { Position } from "./Robot";
-import { Sensor } from "./SonarSensors";
+import { Sensor, Sides } from "./SonarSensors";
 
-
-export interface Point {
+export interface PointMinimum {
     x: number, // position coordinate x
     y: number, // position coordinate y
+}
+
+export interface Point extends PointMinimum {
     d:number // distance from robot
 }
 
+export interface SensorDistance {
+    side: Sides,
+    d:number // distance from robot
+}
 
 export class Obstacles {
     private canvas: HTMLCanvasElement;
@@ -34,7 +40,7 @@ export class Obstacles {
         ];
     }
 
-     calcDistancesFromSensors(sensors:Sensor[]) {
+     calcDistancesFromSensors(sensors:Sensor[]):SensorDistance[] {
         const wallsPoints = this.walls.reduce( (prv,cur) => prv.concat(cur),[] );
         const sensDist = sensors.map(
             sensor => 
@@ -58,7 +64,7 @@ export class Obstacles {
                     };
                 })[0]?.d,
                 side:sensor.side
-             };
+             } as SensorDistance;
             }
         );
         return sensDist;

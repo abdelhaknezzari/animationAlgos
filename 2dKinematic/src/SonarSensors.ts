@@ -1,12 +1,20 @@
-import { Point } from "./Obstacles";
+import { Point, PointMinimum } from "./Obstacles";
 import { Position, Robot } from "./Robot";
 
 export interface Sensor extends Point {
-    side: string
+    side: string,
+    dc:number // distance from center
 }
 
+
+
 export enum Sides {
-    frontLeft = "frontLeft", frontRight = "frontRight", backLeft = "backLeft", backRight = "backRight"
+    frontLeft = "frontLeft",
+    frontRight = "frontRight",
+    backLeft = "backLeft", 
+    backRight = "backRight",
+    middle = "middle",
+    center="center"
 }
 
 export class SonarSensors {
@@ -18,34 +26,54 @@ export class SonarSensors {
         this.context = this.canvas.getContext("2d");
     }
 
-    calcSensorsPositions(robotPosition: Position): Array<Sensor> {
-        return ["frontLeft", "frontRight", "backLeft", "backRight"]
+    
+    calDist(point1:{x:number,y:number}, point2:{x:number,y:number}){
+        return Math.sqrt( Math.pow(point1.x-point2.x,2) + Math.pow(point1.y-point2.y,2));
+  }
+
+    calcSensorsPositions(robotPosition: Position): Array<Sensor> {      
+        return [Sides.frontLeft, Sides.frontRight, Sides.backLeft, Sides.backRight,Sides.middle,Sides.center]
             .map(sensorSide => {
-                if (sensorSide === "backLeft") {
+                if (sensorSide === Sides.center) {
                     return {
-                        x: robotPosition.x - Robot.RSLCos45,
+                        x: robotPosition.x ,
+                        y: robotPosition.y,
+                        side: sensorSide,
+                        dc:0,
+                    } as Sensor;
+                }
+                if (sensorSide === Sides.middle) {
+                    return {
+                        x: robotPosition.x ,
+                        y: robotPosition.y+Robot.robotAttr.rH/2 ,
+                        side: sensorSide
+                    } as Sensor;
+                }
+                if (sensorSide === Sides.backLeft) {
+                    return {
+                        x: robotPosition.x - Robot.RSLCos45-Robot.robotAttr.rW/2-3,
                         y: robotPosition.y - Robot.RSLCos45,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === "backRight") {
+                if (sensorSide === Sides.backRight) {
                     return {
-                        x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW,
-                        y: robotPosition.y - Robot.RSLCos45,
+                        x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW/2,
+                        y: robotPosition.y - Robot.RSLCos45+1,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === "frontLeft") {
+                if (sensorSide === Sides.frontLeft) {
                     return {
-                        x: robotPosition.x - Robot.RSLCos45,
+                        x: robotPosition.x - Robot.RSLCos45 -Robot.robotAttr.rW/2-4 ,
                         y: robotPosition.y - Robot.RSLCos45 + Robot.robotAttr.rH + Robot.robotAttr.rW,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === "frontRight") {
+                if (sensorSide === Sides.frontRight) {
                     return {
-                        x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW,
-                        y: robotPosition.y + Robot.RSLCos45 + Robot.robotAttr.rH,
+                        x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW-Robot.robotAttr.rW/2-4,
+                        y: robotPosition.y + Robot.RSLCos45 + Robot.robotAttr.rH+2,
                         side: sensorSide
                     } as Sensor;
                 }
@@ -67,6 +95,7 @@ export class SonarSensors {
 
     plotCircle(poistion: Position) {
         this.context.beginPath();
+        // this.context.rotate(poistion.th*Math.PI/180);
         const defaultColor = this.context.fillStyle;
         this.context.fillStyle = "orange";
         this.context.arc(poistion.x, poistion.y, 3, 0, Math.PI * 2, true);

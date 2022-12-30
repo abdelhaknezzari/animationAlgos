@@ -16,15 +16,17 @@ export class World {
 
   animate() {
     this.clear();
-    this.obstacles.show();
+
     const distances = this.obstacles.calcDistances(this.robot.getPosition());
     const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-    debugger;
-    const speed = this.conroller.calcWheelsSpeed(distances, this.robot.getSpeed());
+
+    // const speed = this.conroller.calcWheelsSpeed(distances, this.robot.getSpeed());
+
+    // this.robot.plotRobot({x:200,y:200,th:0});
+
+    const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
     this.robot.animate(speed);
-
-   // this.robot.plotRobot2({x:this.canvas.width/2- this.robot.robotAttr.rH/2,y:this.canvas.height/2 + this.robot.robotAttr.rW/2,th:-90});
-
+    this.obstacles.show();
     window.requestAnimationFrame(() => { this.animate() });
   }
 
