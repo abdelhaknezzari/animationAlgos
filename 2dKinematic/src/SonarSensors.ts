@@ -86,7 +86,7 @@ export class SonarSensors {
                 sensCalc.dc = this.calDist(robotPosition, sensCalc);
                 const angle = this.calAngle(robotPosition, sensCalc) +
                 (sens.side === Sides.frontLeft || sens.side === Sides.backLeft ? Math.PI : 0) +
-                robotPosition.th * Math.PI/180;
+                robotPosition.th * Math.PI/180 + Math.PI/2 ;
                 sensCalc.x = robotPosition.x + sensCalc.dc * Math.cos(angle );
                 sensCalc.y = robotPosition.y + sensCalc.dc * Math.sin(angle );
                 return sensCalc;

@@ -20,10 +20,6 @@ export class World {
     const distances = this.obstacles.calcDistances(this.robot.getPosition());
     const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
 
-    // const speed = this.conroller.calcWheelsSpeed(distances, this.robot.getSpeed());
-
-    // this.robot.plotRobot({x:200,y:200,th:0});
-
     const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
     this.robot.animate(speed);
     this.obstacles.show();
@@ -32,5 +28,36 @@ export class World {
 
   clear() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  handleEvent(event:PointerEvent):void {
+    this.clear();
+    debugger;
+
+   switch((event.currentTarget as Element).getAttribute("id")) {
+    case "right": {
+      this.robot.animate({right:160,left:50});
+      break;
+    }
+    case "left": {
+      this.robot.animate({right:50,left:160});
+      break;
+    }
+
+    case "forward": {
+      this.robot.animate({right:160,left:160});
+      break;
+    }
+
+    case "backward": {
+      this.robot.animate({right:-160,left:-160});
+      break;
+    }
+
+   }
+
+
+    this.obstacles.show();
+
   }
 }

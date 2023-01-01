@@ -15,7 +15,7 @@ export class Robot {
     private context: CanvasRenderingContext2D;
     static robotAttr = {
         WheelR: 5,
-        rH: 50,
+        rH: 60,
         rW: 30,
         rSL: 20,
         rSW: 3
@@ -25,7 +25,7 @@ export class Robot {
 
     dt = 0.01;
 
-    position = { x: 130, y: 145, th: Math.PI / 3 } as Position;
+    position = { x: 150, y: 150, th:0 } as Position;
     speed = { right: 100, left: 100 } as Speed;
     sonarSensors=new SonarSensors();
 
@@ -61,19 +61,19 @@ export class Robot {
         }; 
         
         this.context.moveTo(previousPosition.x , previousPosition.y );
-        moveAndTurn(Robot.robotAttr.rW/2 -2 , position.th );
-        sensHolder(0);
-        moveAndTurn(Robot.robotAttr.rH , position.th +90);
-        sensHolder(90);
-        moveAndTurn(Robot.robotAttr.rW , position.th -180);
-        sensHolder(180);
-        moveAndTurn(Robot.robotAttr.rH , position.th-90);
-        sensHolder(270);
-        moveAndTurn(Robot.robotAttr.rW/2 , position.th );
+        moveAndTurn(Robot.robotAttr.rW/2 -2 , position.th + 90 );
+        sensHolder( 90 );
+        moveAndTurn(Robot.robotAttr.rH , position.th + 180 );
+        sensHolder(180 );
+        moveAndTurn(Robot.robotAttr.rW , position.th -90 );
+        sensHolder(-90 );
+        moveAndTurn(Robot.robotAttr.rH , position.th );
+        sensHolder(0 );
+        moveAndTurn(Robot.robotAttr.rW/2 , position.th + 90 );
 
-        moveAndTurn(2,  position.th-90 );
-        moveAndTurn(2, 0+ position.th );
-        moveAndTurn(2, 90+ position.th );
+        moveAndTurn(2,  position.th  );
+        moveAndTurn(2, 0+ position.th + 90 );
+        moveAndTurn(2, 90+ position.th+ 90  );
 
         this.context.stroke();
         this.context.fill();
@@ -93,7 +93,7 @@ export class Robot {
         this.context.moveTo(previousPosition.x , previousPosition.y );
         moveAndTurn(Robot.robotAttr.rH , 90 + position.th );
         moveAndTurn(Robot.robotAttr.rSL, -180 - 45+ position.th );
-        moveAndTurn(Robot.robotAttr.rSW, -180 - 90 - 45+ position.th );
+        moveAndTurn(Robot.robotAttr.rSW, -180 - 45 + position.th );
         moveAndTurn(Robot.robotAttr.rSL - 2, -45+ position.th );
         moveAndTurn((Robot.robotAttr.rW - 4) / 2,  position.th );
         moveAndTurn(4, 90+ position.th );
@@ -102,7 +102,7 @@ export class Robot {
         moveAndTurn((Robot.robotAttr.rW - 4) / 2, 0+ position.th );
         moveAndTurn(Robot.robotAttr.rSL, 45+ position.th );
         moveAndTurn(Robot.robotAttr.rSW, -45+ position.th );
-        moveAndTurn(Robot.robotAttr.rSL - 2, 180 + 45+ position.th );
+        moveAndTurn(Robot.robotAttr.rSL - 2, 22+ position.th );
         moveAndTurn(Robot.robotAttr.rH, -90+ position.th );
         moveAndTurn(Robot.robotAttr.rSL, -45+ position.th );
         moveAndTurn(Robot.robotAttr.rSW, -135+ position.th );
@@ -140,11 +140,11 @@ export class Robot {
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
         const linearVelocity = (rightWheelSpeed + leftWeelSpeed) / 2;
-        const angularVelocity = rightWheelSpeed - leftWeelSpeed;
-        const dth = (2 * Math.PI * Robot.robotAttr.WheelR / Robot.robotAttr.rW) * angularVelocity * this.dt;
-        const theta = this.position.th + dth;
-        const dx = Robot.robotAttr.WheelR * linearVelocity * Math.cos(theta) * this.dt;
-        const dy = Robot.robotAttr.WheelR * linearVelocity * Math.sin(theta) * this.dt;
+        const angularVelocity = leftWeelSpeed-rightWheelSpeed;
+        const dth =angularVelocity * this.dt * Robot.robotAttr.WheelR/ Robot.robotAttr.rW;
+        // const theta = this.position.th + dth;
+        const dx =linearVelocity * Math.cos(this.position.th) * this.dt * Robot.robotAttr.WheelR/2;
+        const dy =linearVelocity * Math.sin(this.position.th) * this.dt * Robot.robotAttr.WheelR/2;
 
         return { dx, dy, dth };
     }
