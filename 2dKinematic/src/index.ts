@@ -22,4 +22,4 @@ document.getElementById("backward").addEventListener( "click", event => {
     world.handleEvent(event as PointerEvent);
 
 });
-world.animate();
+ world.animate();

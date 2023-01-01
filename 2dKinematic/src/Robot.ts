@@ -48,32 +48,32 @@ export class Robot {
     plotRobot(position: Position) {
         let previousPosition = position;
         const moveAndTurn = (d: number, th: number) => {
-            const xCoord = previousPosition.x + d * Math.cos(th * Math.PI / 180);
-            const yCoord = previousPosition.y + d * Math.sin(th * Math.PI / 180);
+            const xCoord = previousPosition.x + d * Math.cos(th );
+            const yCoord = previousPosition.y + d * Math.sin(th);
             previousPosition = { x: xCoord, y: yCoord, th };
             this.context.lineTo(xCoord, yCoord);
         };
 
         const sensHolder = (angle:number) => {
-            moveAndTurn(Robot.robotAttr.rSL , position.th -45+angle);
-            moveAndTurn(Robot.robotAttr.rSW, position.th+45 +angle);
-            moveAndTurn(Robot.robotAttr.rSL , position.th +45 +90+angle);
+            moveAndTurn(Robot.robotAttr.rSL , position.th -Math.PI/4+angle);
+            moveAndTurn(Robot.robotAttr.rSW, position.th+Math.PI/4 +angle);
+            moveAndTurn(Robot.robotAttr.rSL , position.th +3*Math.PI/4+angle);
         }; 
         
         this.context.moveTo(previousPosition.x , previousPosition.y );
-        moveAndTurn(Robot.robotAttr.rW/2 -2 , position.th + 90 );
-        sensHolder( 90 );
-        moveAndTurn(Robot.robotAttr.rH , position.th + 180 );
-        sensHolder(180 );
-        moveAndTurn(Robot.robotAttr.rW , position.th -90 );
-        sensHolder(-90 );
+        moveAndTurn(Robot.robotAttr.rW/2 -2 , position.th + Math.PI/2 );
+        sensHolder( Math.PI/2 );
+        moveAndTurn(Robot.robotAttr.rH , position.th + Math.PI );
+        sensHolder(Math.PI );
+        moveAndTurn(Robot.robotAttr.rW , position.th -Math.PI/2 );
+        sensHolder(-Math.PI/2 );
         moveAndTurn(Robot.robotAttr.rH , position.th );
         sensHolder(0 );
-        moveAndTurn(Robot.robotAttr.rW/2 , position.th + 90 );
+        moveAndTurn(Robot.robotAttr.rW/2 , position.th + Math.PI/2 );
 
         moveAndTurn(2,  position.th  );
-        moveAndTurn(2, 0+ position.th + 90 );
-        moveAndTurn(2, 90+ position.th+ 90  );
+        moveAndTurn(2, position.th + Math.PI/2 );
+        moveAndTurn(2, position.th+ Math.PI );
 
         this.context.stroke();
         this.context.fill();
@@ -141,7 +141,7 @@ export class Robot {
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
         const linearVelocity = (rightWheelSpeed + leftWeelSpeed) / 2;
         const angularVelocity = leftWeelSpeed-rightWheelSpeed;
-        const dth =angularVelocity * this.dt * Robot.robotAttr.WheelR/ Robot.robotAttr.rW;
+        const dth =angularVelocity * this.dt *2* Math.PI* Robot.robotAttr.WheelR/ Robot.robotAttr.rW;
         // const theta = this.position.th + dth;
         const dx =linearVelocity * Math.cos(this.position.th) * this.dt * Robot.robotAttr.WheelR/2;
         const dy =linearVelocity * Math.sin(this.position.th) * this.dt * Robot.robotAttr.WheelR/2;
