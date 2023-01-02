@@ -32,7 +32,6 @@ export class World {
 
   handleEvent(event:PointerEvent):void {
     this.clear();
-    debugger;
 
    switch((event.currentTarget as Element).getAttribute("id")) {
     case "right": {
@@ -51,6 +50,16 @@ export class World {
 
     case "backward": {
       this.robot.animate({right:-160,left:-160});
+      break;
+    }
+
+    case "step": {
+     this.clear();
+      const distances = this.obstacles.calcDistances(this.robot.getPosition());
+      const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
+      const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
+      this.robot.animate(speed);
+      this.obstacles.show();
       break;
     }
 

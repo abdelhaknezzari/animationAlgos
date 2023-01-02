@@ -22,4 +22,25 @@ document.getElementById("backward").addEventListener( "click", event => {
     world.handleEvent(event as PointerEvent);
 
 });
- world.animate();
+
+document.getElementById("step").addEventListener( "click", event => {
+    world.handleEvent(event as PointerEvent);
+
+});
+
+document.getElementById("x").addEventListener( "change", event => {
+    debugger;
+
+});
+
+document.getElementById("y").addEventListener( "change", event => {
+    debugger;
+
+});
+
+document.getElementById("th").addEventListener( "change", event => {
+    debugger;
+
+});
+
+//  world.animate();

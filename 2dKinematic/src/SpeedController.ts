@@ -39,47 +39,39 @@ export class SpeedController {
 
         // const steeringAngle = frontLeftDist < SpeedController.MaxSpeed &&
 
-        const angleCode = (3 << (frontLeftDist < SpeedController.MaxDistance ? 1 : 0)) |
-            (2 << (frontRightDist < SpeedController.MaxDistance ? 1 : 0)) |
-            (1 << (backLeftDist < SpeedController.MaxDistance ? 1 : 0)) |
+        debugger;
+
+        const angleCode =   (  ( frontLeftDist < SpeedController.MaxDistance ? 1 : 0 ) << 3 ) |
+            ( (frontRightDist < SpeedController.MaxDistance ? 1 : 0) << 2) |
+            ( (backLeftDist < SpeedController.MaxDistance ? 1 : 0) << 1) |
             ((backRightDist < SpeedController.MaxDistance ? 1 : 0));
 
 
-    
-        let turnAngle = 0;
-        switch(angleCode) {
-            
-            case(6):
-            case(9):
-            turnAngle = 0;
-            break;
 
-            case(3):
-            case(8):
-            case(4):
-            case(13):
-            case(14):
-            case(15):
-              turnAngle = Math.PI/100;
-              break;
-            case(11):
-            case(12):
-              turnAngle = Math.PI/200;
-              break;
-            default:
-                turnAngle = 0;
+        let turnAngle = 0;
+        switch (angleCode) {
+
+            case (8):
+            case (4):
+                turnAngle = 0.5;
                 break;
 
+            case (6):
+                case (9):
 
+            turnAngle = 1/4.0;
+            break;
 
+            case (3):
+                turnAngle = 0;
+                break;
+            default:
+                turnAngle = 1/4.0;
+                break;
         }
 
-
-        // if (frontLeftDist < SpeedController.MaxDistance) {
-        calcSpeed.right = speedMax*Math.cos(turnAngle);
-        // } else if (frontRightDist < SpeedController.MaxDistance ) {
-        calcSpeed.left = speedMax*Math.sin(turnAngle);
-        // }
+        calcSpeed.right = speedMax * Math.cos(Math.PI * turnAngle);
+        calcSpeed.left = speedMax * Math.sin(Math.PI * turnAngle);
 
         return calcSpeed;
     }
