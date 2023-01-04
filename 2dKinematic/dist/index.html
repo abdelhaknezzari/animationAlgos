@@ -1,20 +1,40 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Typescript Canvas Template</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <button id="right">Turn right</button>
-    <button id="left">Turn Left</button>
-    <button id="forward">forward</button>
-    <button id="backward">backward</button>
-    <input id= "x" value="40">
-    <input id= "y" value="40">
-    <input id= "th" value="40">
-    <button id="step">step</button>
-    <canvas id="canvas" width="1000" height="1000" style="border:1px solid #000000;">
+
+<head>
+  <title>Typescript Canvas Template</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div>
+    <div>
+      <button id="right">Turn right</button>
+      <button id="left">Turn Left</button>
+      <button id="forward">forward</button>
+      <button id="backward">backward</button>
+      <button id="stop">stop</button>
+    </div>
+    <div>
+      <input id="x" value="40" style="width: 50px;">
+      <input id="y" value="40" style="width: 50px;">
+      <input id="th" value="40" style="width: 50px;">
+      <button id="start">start</button>
+    </div>
+    <div>
+
+      <input id="angelStep" value="0.05">
+      <button id="step">step</button>
+    </div>
+  </div>
+
+
+  <div>
+    <canvas id="canvas" style="border:1px solid #000000;" height="1000px" width="1000px">
     </canvas>
-    <script src="bundle.js"></script>
-  </body>
+  </div>
+  <script src="bundle.js"></script>
+
+</body>
+
 </html>

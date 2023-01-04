@@ -13,6 +13,8 @@ export interface Position {
 export class Robot {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
+
+    private stop = false;
     static robotAttr = {
         WheelR: 5,
         rH: 60,
@@ -120,6 +122,10 @@ export class Robot {
         return this.position;
     }
 
+    setPosition(position:Position): void {
+        this.position = position;
+    }
+
     getSpeed(): Speed {
         return this.speed;
     }
@@ -132,7 +138,7 @@ export class Robot {
     }
 
     calcNewPosition(speed: Speed) {
-        const delta = this.kinematic(speed.left, speed.right);
+        const delta = this.stop? { dx: 0, dy: 0, dth: 0 }: this.kinematic(speed.left, speed.right);
         this.position.x += delta.dx;
         this.position.y += delta.dy;
         this.position.th += delta.dth ;
@@ -151,5 +157,21 @@ export class Robot {
 
     getSensors():Array<Sensor> {
         return this.sonarSensors.calcSensorsPositions(this.getPosition());
+    }
+
+    setX(x:number) :void {
+        this.position.x = x;
+    }
+
+    setY(y:number) :void {
+        this.position.y = y;
+    }
+
+    setTh(th:number) :void {
+        this.position.th = th;
+    }
+
+    toggleStop(){
+        this.stop = !this.stop;
     }
 }

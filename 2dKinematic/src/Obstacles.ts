@@ -113,3 +113,5 @@ export class Obstacles {
     }
 
 }
+
+export default new Obstacles();
