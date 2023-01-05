@@ -21,11 +21,11 @@ export class World {
     const distances = this.obstacles.calcDistances(this.robot.getPosition());
     const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
 
-    const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
+    const speed = this.conroller.calcWheelsSpeed3(sensorDistances, this.robot.getSpeed());
     this.robot.animate(speed);
     this.obstacles.show();
     PathGenerator.showFrontObstaclePathAvoidance(sensorDistances, this.robot.getPosition());
-    // window.requestAnimationFrame(() => { this.animate() });
+    window.requestAnimationFrame(() => { this.animate() });
   }
 
   clear() {
@@ -64,7 +64,7 @@ export class World {
         this.clear();
         const distances = this.obstacles.calcDistances(this.robot.getPosition());
         const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-        const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
+        const speed = this.conroller.calcWheelsSpeed3(sensorDistances, this.robot.getSpeed());
         this.robot.animate(speed);
         this.obstacles.show();
         PathGenerator.showFrontObstaclePathAvoidance(sensorDistances, this.robot.getPosition());

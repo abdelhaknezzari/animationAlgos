@@ -51,28 +51,28 @@ export class SonarSensors {
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === Sides.backLeft) {
+                if (sensorSide === Sides.frontLeft) {
                     return {
                         x: robotPosition.x - Robot.RSLCos45 - Robot.robotAttr.rW / 2 - 3,
                         y: robotPosition.y - Robot.RSLCos45,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === Sides.backRight) {
+                if (sensorSide === Sides.frontRight) {
                     return {
                         x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW / 2,
                         y: robotPosition.y - Robot.RSLCos45 + 1,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === Sides.frontLeft) {
+                if (sensorSide === Sides.backLeft) {
                     return {
                         x: robotPosition.x - Robot.RSLCos45 - Robot.robotAttr.rW / 2 - 4,
                         y: robotPosition.y - Robot.RSLCos45 + Robot.robotAttr.rH + Robot.robotAttr.rW,
                         side: sensorSide
                     } as Sensor;
                 }
-                if (sensorSide === Sides.frontRight) {
+                if (sensorSide === Sides.backRight) {
                     return {
                         x: robotPosition.x + Robot.RSLCos45 + Robot.robotAttr.rW - Robot.robotAttr.rW / 2 - 2,
                         y: robotPosition.y + Robot.RSLCos45 + Robot.robotAttr.rH + 3,

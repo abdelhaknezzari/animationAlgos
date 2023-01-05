@@ -8,8 +8,11 @@ export interface Speed {
 }
 
 export class SpeedController {
-    static MaxSpeed = 500;
-    static MaxDistance = 30;
+    static MaxSpeed = 700;
+    static MaxDistance = 80;
+
+    lastDistanceToObstacles:SensorDistance[];
+
     calcWheelsSpeed(obstacleDistances: Array<Point>, currentSpeed: Speed): Speed {
         if (obstacleDistances.some(point => point.d < 10)) {
             return {
@@ -99,4 +102,50 @@ export class SpeedController {
 
         return calcSpeed;
     }
+
+
+    calcWheelsSpeed3(sensorObstDistances: SensorDistance[], currentSpeed: Speed): Speed {
+
+
+        const frontLeftDist = sensorObstDistances.find(sens => sens.side === Sides.frontLeft).d;
+        const frontRightDist = sensorObstDistances.find(sens => sens.side === Sides.frontRight).d;
+        const backLeftDist = sensorObstDistances.find(sens => sens.side === Sides.backLeft).d;
+        const backRightDist = sensorObstDistances.find(sens => sens.side === Sides.backRight).d;
+
+        let calcSpeed: Speed = { left: SpeedController.MaxSpeed/2, right: SpeedController.MaxSpeed/2 };
+
+
+        const angleCode = ((frontLeftDist < SpeedController.MaxDistance ? 1 : 0) << 3) |
+            ((frontRightDist < SpeedController.MaxDistance ? 1 : 0) << 2) |
+            ((backLeftDist < SpeedController.MaxDistance ? 1 : 0) << 1) |
+            ((backRightDist < SpeedController.MaxDistance ? 1 : 0));
+
+        const frontRightTurn = frontRightDist < SpeedController.MaxDistance ? 1-Math.exp(0.01*Math.sqrt(  Math.pow(frontRightDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance )):0;
+        const frontLeftTurn = frontLeftDist < SpeedController.MaxDistance ? 1-Math.exp(0.01*Math.sqrt(  Math.pow(frontLeftDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance )):0;
+        const backRightTurn = backRightDist < SpeedController.MaxDistance ? 1-Math.exp(0.01*Math.sqrt(  Math.pow(backRightDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance )) : 0;
+        const backLeftTurn = backLeftDist < SpeedController.MaxDistance ? 1-Math.exp(0.01*Math.sqrt(  Math.pow(backLeftDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance )):0;
+   
+        const obstIsOnFront = frontRightDist < SpeedController.MaxDistance && frontLeftDist < SpeedController.MaxDistance ? 1: 0;
+        const obstIsOnRight = frontRightDist < SpeedController.MaxDistance && frontLeftDist > SpeedController.MaxDistance ||
+                              backRightDist < SpeedController.MaxDistance && backLeftDist > SpeedController.MaxDistance 
+          ? 1: 0;
+
+        const obstIsOnLeft  = frontLeftDist < SpeedController.MaxDistance && frontRightDist > SpeedController.MaxDistance ||
+          backLeftDist < SpeedController.MaxDistance && backRightDist > SpeedController.MaxDistance 
+? 1: 0;
+
+        debugger;
+        let alpha = (frontRightTurn- backRightTurn) * obstIsOnRight  + obstIsOnFront * (frontRightTurn + frontLeftTurn ) * 0.5 ;
+        let beta  = (frontLeftTurn - backLeftTurn) * obstIsOnLeft;
+
+        calcSpeed.left  += SpeedController.MaxSpeed/2  * alpha;
+        calcSpeed.right += SpeedController.MaxSpeed/2  * beta ;
+
+
+
+        this.lastDistanceToObstacles = sensorObstDistances;
+
+        return calcSpeed;
+    }
+
 }
