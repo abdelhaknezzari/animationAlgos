@@ -9,6 +9,11 @@ export interface Position {
     th: number // theta orientation of robot in 2 Dimention
 }
 
+export interface DeltaPosition {
+    dx: number, // delta coordinate x
+    dy: number, // selta coordinate y
+    dth: number // delta theta orientation of robot in 2 Dimention
+}
 
 export class Robot {
     private canvas: HTMLCanvasElement;
@@ -29,6 +34,7 @@ export class Robot {
 
     position = { x: 150, y: 150, th:0 } as Position;
     speed = { right: 100, left: 100 } as Speed;
+    delta = {dx:0,dy:0,dth:0} as DeltaPosition;
     sonarSensors=new SonarSensors();
 
 
@@ -80,6 +86,18 @@ export class Robot {
         this.context.stroke();
         this.context.fill();
 
+    }
+
+    keepRobotInWindows():void {
+        if(this.position.x >= 970) {
+            this.delta.dx =  -this.delta.dx ;
+            this.delta.dth =  -this.delta.dth ;
+        }
+
+        if(this.position.y >= 970 || this.position.y <= 5 ) {
+            this.delta.dy =  -this.delta.dy ;
+            this.delta.dth =  -this.delta.dth ;
+        }
     }
 
 
@@ -135,13 +153,14 @@ export class Robot {
         this.calcNewPosition(speed);
         this.plotRobot(this.position);
         this.sonarSensors.show(this.position);
+
     }
 
     calcNewPosition(speed: Speed) {
-        const delta = this.stop? { dx: 0, dy: 0, dth: 0 }: this.kinematic(speed.left, speed.right);
-        this.position.x += delta.dx;
-        this.position.y += delta.dy;
-        this.position.th += delta.dth ;
+        this.delta = this.stop? { dx: 0, dy: 0, dth: 0 }: this.kinematic(speed.left, speed.right);
+        this.position.x += this.delta.dx;
+        this.position.y += this.delta.dy;
+        this.position.th += this.delta.dth ;
     }
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
