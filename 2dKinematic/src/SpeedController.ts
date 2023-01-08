@@ -1,6 +1,7 @@
 import { Point, SensorDistance } from "./Obstacles";
-import { Robot } from "./Robot";
+import { Position, Robot } from "./Robot";
 import { Sensor, Sides } from "./SonarSensors";
+import target from "./Target";
 
 export interface Speed {
     right: number,
@@ -10,10 +11,11 @@ export interface Speed {
 export class SpeedController {
     static MaxSpeed = 700;
     static MaxDistance = 80;
+    iteration = 0;
 
-    lastDistanceToObstacles:SensorDistance[];
+    lastDistanceToObstacles: SensorDistance[];
 
-    calcWheelsSpeed(obstacleDistances: Array<Point>, currentSpeed: Speed): Speed {
+    calcWheelsSpeed3(obstacleDistances: Array<Point>, currentSpeed: Speed): Speed {
         if (obstacleDistances.some(point => point.d < 10)) {
             return {
                 right: currentSpeed.right * (-1),
@@ -37,9 +39,9 @@ export class SpeedController {
 
 
         const coef = (1 - Math.exp(-0.04 * Math.sqrt(Math.pow(frontLeftDist - SpeedController.MaxDistance, 2) +
-        Math.pow(frontRightDist - SpeedController.MaxDistance, 2) +
-        Math.pow(backLeftDist - SpeedController.MaxDistance, 2) +
-        Math.pow(backRightDist - SpeedController.MaxDistance, 2)) / SpeedController.MaxDistance));
+            Math.pow(frontRightDist - SpeedController.MaxDistance, 2) +
+            Math.pow(backLeftDist - SpeedController.MaxDistance, 2) +
+            Math.pow(backRightDist - SpeedController.MaxDistance, 2)) / SpeedController.MaxDistance));
 
         const speedMax = SpeedController.MaxSpeed * (1 - Math.exp(-0.8 * Math.sqrt(Math.pow(frontLeftDist - SpeedController.MaxDistance, 2) +
             Math.pow(frontRightDist - SpeedController.MaxDistance, 2) +
@@ -51,77 +53,53 @@ export class SpeedController {
             ((backLeftDist < SpeedController.MaxDistance ? 1 : 0) << 1) |
             ((backRightDist < SpeedController.MaxDistance ? 1 : 0));
 
-        const frontRightTurn = 1 - Math.exp(0.01*Math.sqrt(  Math.pow(frontRightDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance ));
-        const frontLeftTurn = 1 - Math.exp(0.01*Math.sqrt(  Math.pow(frontLeftDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance ));
-        const backRightTurn = 1 - Math.exp(0.01*Math.sqrt(  Math.pow(backRightDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance ));
-        const backLeftTurn = 1 - Math.exp(0.01*Math.sqrt(  Math.pow(backLeftDist - SpeedController.MaxDistance, 2)/ SpeedController.MaxDistance ));
+        const frontRightTurn = 1 - Math.exp(0.01 * Math.sqrt(Math.pow(frontRightDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance));
+        const frontLeftTurn = 1 - Math.exp(0.01 * Math.sqrt(Math.pow(frontLeftDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance));
+        const backRightTurn = 1 - Math.exp(0.01 * Math.sqrt(Math.pow(backRightDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance));
+        const backLeftTurn = 1 - Math.exp(0.01 * Math.sqrt(Math.pow(backLeftDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance));
+
+        let alpha = angleCode > 0 ? (frontRightTurn + backRightTurn) * 0.5 : 1;
+        let beta = angleCode > 0 ? (frontLeftTurn + backLeftTurn) * 0.5 : 1;
+        
    
-        //     R  L
-        // F   4  8    => 12
-        // B   1  2    => 3
-        //    ||  ||
-        //    5   10
-        let alpha = angleCode > 0 ? (frontRightTurn + backRightTurn ) *0.5:1;
-        let beta  = angleCode > 0 ? (frontLeftTurn  + backLeftTurn  ) *0.5:1;
-
-        // switch (angleCode) {
-        //     case (3):
-        //         alpha = 0.02;
-        //         break;
-
-        //     case (2):
-        //         alpha = 0.02;
-        //         break;
-        //     case (1):
-        //         alpha = 0.02;
-        //         break;
-        //     case (4):
-        //         alpha = 0.02;
-        //         break;
-        //     case (5):
-        //         alpha = 0.02;
-        //         break;
-
-        //     case (8):
-        //         alpha = 0.02;
-
-        //     case (10):
-        //         alpha = 0.02;
-        //         break;
-
-        //         break;
 
 
-        //     default:
-        //         alpha = 0.00;
-        //         break;
-        // }
-
-        calcSpeed.left = SpeedController.MaxSpeed  *  alpha;
-        calcSpeed.right = SpeedController.MaxSpeed * beta ;
+        calcSpeed.left  = SpeedController.MaxSpeed * alpha;
+        calcSpeed.right = SpeedController.MaxSpeed * beta;
 
         return calcSpeed;
     }
 
 
-    calcRepulseExpo(obstacleDist:number,factor = 0.01):number {
-        return obstacleDist < SpeedController.MaxDistance 
-        ?  1 - Math.exp(factor *Math.sqrt(Math.pow(obstacleDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance))
-        : 0;
+    calcRepulseExpo(obstacleDist: number, factor = 0.01): number {
+        return obstacleDist < SpeedController.MaxDistance
+            ? 1 - Math.exp(factor * Math.sqrt(Math.pow(obstacleDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance))
+            : 0;
     }
 
-    calcRepulseCobined(obstacleDist:number,factor = 0.01):number {
-        return obstacleDist < SpeedController.MaxDistance 
-        // ? 1.5-1/( Math.abs(obstacleDist-SpeedController.MaxDistance*0.3) / SpeedController.MaxDistance)
-        // ? Math.tanh( 0.034/( Math.abs(obstacleDist-SpeedController.MaxDistance) / SpeedController.MaxDistance))
-        // ?0.03*Math.PI* Math.abs(obstacleDist-SpeedController.MaxDistance) / SpeedController.MaxDistance
-        ?( 0.4*(1-1/(1+Math.exp(-0.001*(obstacleDist-SpeedController.MaxDistance) / SpeedController.MaxDistance)) ) +
-         0.6*( 1- Math.exp(factor *Math.sqrt(Math.pow(obstacleDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance)))) *0.5
-        : 0;
+    calcRepulseCobined(obstacleDist: number, factor = 0.01): number {
+        return obstacleDist < SpeedController.MaxDistance
+            // ? 1.5-1/( Math.abs(obstacleDist-SpeedController.MaxDistance*0.3) / SpeedController.MaxDistance)
+            // ? Math.tanh( 0.034/( Math.abs(obstacleDist-SpeedController.MaxDistance) / SpeedController.MaxDistance))
+            // ?0.03*Math.PI* Math.abs(obstacleDist-SpeedController.MaxDistance) / SpeedController.MaxDistance
+            ? (0.4 * (1 - 1 / (1 + Math.exp(-0.001 * (obstacleDist - SpeedController.MaxDistance) / SpeedController.MaxDistance))) +
+                0.6 * (1 - Math.exp(factor * Math.sqrt(Math.pow(obstacleDist - SpeedController.MaxDistance, 2) / SpeedController.MaxDistance)))) * 0.5
+            : 0;
     }
 
 
-    calcWheelsSpeed3(sensorObstDistances: SensorDistance[], currentSpeed: Speed): Speed {
+    calcWheelsSpeed(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
+        this.iteration += 1;
+        const avoidObstacleCommand = this.avoidObstacle(sensorObstDistances, currentSpeed);
+        const goToTargetCommand = this.goToTarget(robotPosition);
+        return {
+            left:  avoidObstacleCommand.left   + goToTargetCommand.left *0.0007,
+            right: avoidObstacleCommand.right  + goToTargetCommand.right * 0.0007
+        };
+    }
+
+
+    avoidObstacle(sensorObstDistances: SensorDistance[], currentSpeed: Speed): Speed {
         const frontLeftDist = sensorObstDistances.find(sens => sens.side === Sides.frontLeft).d;
         const frontRightDist = sensorObstDistances.find(sens => sens.side === Sides.frontRight).d;
         const backLeftDist = sensorObstDistances.find(sens => sens.side === Sides.backLeft).d;
@@ -161,16 +139,30 @@ export class SpeedController {
             ? 1
             : 0;
 
+        const randEffect = this.iteration % 50000 && Math.random() > 0.5 && obstIsOnFront ? 0:1;
 
-        let alpha = (frontRightTurn - backRightTurn) * obstIsOnRight + obstIsOnFront * (frontRightTurn + frontLeftTurn) * 0.5;
-        let beta = (frontLeftTurn - backLeftTurn) * obstIsOnLeft ;
-        const randEffect = Math.random() > 0.5 ? 1: 0;
+        let alpha = (frontRightTurn - backRightTurn) * obstIsOnRight + obstIsOnFront * (frontRightTurn + frontLeftTurn) * 0.5 ;
+        let beta =  (frontLeftTurn - backLeftTurn) * obstIsOnLeft   ;
+   
 
-        calcSpeed.left  += SpeedController.MaxSpeed / 2  *  alpha;
-        calcSpeed.right += SpeedController.MaxSpeed / 2  *  beta;
+        calcSpeed.left += SpeedController.MaxSpeed / 2 *  (alpha );
+        calcSpeed.right += SpeedController.MaxSpeed / 2 * (beta);
         this.lastDistanceToObstacles = sensorObstDistances;
 
         return calcSpeed;
+    }
+
+    calDist2Target(targetPosition: Position, robotPosition: Position): number {
+        return Math.sqrt(Math.pow(targetPosition.x - robotPosition.x, 2) + Math.pow(targetPosition.y - robotPosition.y, 2));
+    }
+
+    goToTarget(robotPosition: Position): Speed {
+        const targetPosition = target.getPosition();
+
+        const linearSpeed = this.calDist2Target(targetPosition, robotPosition);
+        const angularSpeed = Math.atan2((targetPosition.y - robotPosition.y),(targetPosition.x - robotPosition.x))-robotPosition.th;
+
+        return { right: linearSpeed *Math.cos(angularSpeed*0.01 + robotPosition.th) , left: linearSpeed *Math.sin(angularSpeed*0.01 + robotPosition.th)   };
     }
 
 }

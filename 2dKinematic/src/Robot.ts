@@ -161,6 +161,7 @@ export class Robot {
         this.position.x += this.delta.dx;
         this.position.y += this.delta.dy;
         this.position.th += this.delta.dth ;
+        this.position.th %= 2*Math.PI; 
     }
 
     kinematic(leftWeelSpeed: number, rightWheelSpeed: number): { dx: number, dy: number, dth: number } {
