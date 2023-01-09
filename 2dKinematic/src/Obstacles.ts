@@ -108,8 +108,6 @@ export class Obstacles {
         this.context.arc(point.x, point.y, Obstacles.rWall, 0, Math.PI * 2, true);
         this.context.closePath();
         this.context.fill();
-
-        this.context.fillText("Hello World", 10, 50);
     }
 
 }

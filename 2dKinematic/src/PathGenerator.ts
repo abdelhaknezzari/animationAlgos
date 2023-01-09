@@ -24,6 +24,13 @@ class PathGenerator {
         const backLeftDist = sensors.find(sens => sens.side === Sides.backLeft).d;
         const backRightDist = sensors.find(sens => sens.side === Sides.backRight).d;
 
+
+        this.context.fillText(`frontLeftDist:${frontLeftDist}`, 1, 10);
+        this.context.fillText(`backLeftDist:${backLeftDist}`, 1, 30);
+        this.context.fillText(`frontRightDist:${frontRightDist}`, 1, 50);
+        this.context.fillText(`backRightDist:${backRightDist}`, 1, 70);
+        this.context.fillText(`Theta:${robotPosition.th}`, 1, 90);
+
         if (backLeftDist <= 3*Robot.robotAttr.rW &&
             backRightDist <= 3*Robot.robotAttr.rW) {
             this.context.beginPath();

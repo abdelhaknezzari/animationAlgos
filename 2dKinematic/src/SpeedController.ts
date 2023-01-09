@@ -61,9 +61,6 @@ export class SpeedController {
         let alpha = angleCode > 0 ? (frontRightTurn + backRightTurn) * 0.5 : 1;
         let beta = angleCode > 0 ? (frontLeftTurn + backLeftTurn) * 0.5 : 1;
         
-   
-
-
         calcSpeed.left  = SpeedController.MaxSpeed * alpha;
         calcSpeed.right = SpeedController.MaxSpeed * beta;
 
@@ -92,9 +89,16 @@ export class SpeedController {
         this.iteration += 1;
         const avoidObstacleCommand = this.avoidObstacle(sensorObstDistances, currentSpeed);
         const goToTargetCommand = this.goToTarget(robotPosition);
+
+        const frontLeftDist = sensorObstDistances.find(sens => sens.side === Sides.frontLeft).d;
+        const frontRightDist = sensorObstDistances.find(sens => sens.side === Sides.frontRight).d;
+        const backLeftDist = sensorObstDistances.find(sens => sens.side === Sides.backLeft).d;
+        const backRightDist = sensorObstDistances.find(sens => sens.side === Sides.backRight).d;
+
+
         return {
-            left:  avoidObstacleCommand.left   + goToTargetCommand.left *0.0007,
-            right: avoidObstacleCommand.right  + goToTargetCommand.right * 0.0007
+            left:  avoidObstacleCommand.left  * 0.5   + goToTargetCommand.left * 0.5 ,
+            right: avoidObstacleCommand.right * 0.5   + goToTargetCommand.right* 0.5  
         };
     }
 
@@ -132,6 +136,20 @@ export class SpeedController {
             ? 1
             : 0;
 
+            const obstIsOnBackRight = backRightDist < SpeedController.MaxDistance &&
+            frontLeftDist > SpeedController.MaxDistance  &&
+            backRightDist > SpeedController.MaxDistance &&
+            backLeftDist  > SpeedController.MaxDistance
+            ? 2.9
+            : 0;
+
+            const obstIsOnBackLeft = backLeftDist < SpeedController.MaxDistance &&
+            backRightDist > SpeedController.MaxDistance &&
+            frontLeftDist > SpeedController.MaxDistance  &&
+            frontLeftDist > SpeedController.MaxDistance
+            ? 2.9
+            : 0;
+
         const obstIsOnLeft = frontLeftDist < SpeedController.MaxDistance &&
             frontRightDist > SpeedController.MaxDistance ||
             backLeftDist < SpeedController.MaxDistance &&
@@ -139,14 +157,14 @@ export class SpeedController {
             ? 1
             : 0;
 
-        const randEffect = this.iteration % 50000 && Math.random() > 0.5 && obstIsOnFront ? 0:1;
+        const randEffectObsFr = (this.iteration % 10 === 0 ) && Math.random() > 0.5 && obstIsOnFront ? 1:0;
 
-        let alpha = (frontRightTurn - backRightTurn) * obstIsOnRight + obstIsOnFront * (frontRightTurn + frontLeftTurn) * 0.5 ;
-        let beta =  (frontLeftTurn - backLeftTurn) * obstIsOnLeft   ;
+        let alpha = (frontRightTurn - backRightTurn) * obstIsOnRight  + obstIsOnBackRight * backRightTurn + obstIsOnFront * (frontRightTurn + frontLeftTurn) * 0.5;
+        let beta =  (frontLeftTurn - backLeftTurn) * obstIsOnLeft     + obstIsOnBackLeft  * backLeftTurn ;
    
 
-        calcSpeed.left += SpeedController.MaxSpeed / 2 *  (alpha );
-        calcSpeed.right += SpeedController.MaxSpeed / 2 * (beta);
+        calcSpeed.left += SpeedController.MaxSpeed  * 0.5 * alpha;
+        calcSpeed.right += SpeedController.MaxSpeed * 0.5 * beta;
         this.lastDistanceToObstacles = sensorObstDistances;
 
         return calcSpeed;
@@ -158,11 +176,12 @@ export class SpeedController {
 
     goToTarget(robotPosition: Position): Speed {
         const targetPosition = target.getPosition();
+        const targetDistance = this.calDist2Target(targetPosition, robotPosition);
 
-        const linearSpeed = this.calDist2Target(targetPosition, robotPosition);
+        const linearSpeed = targetDistance < 2*SpeedController.MaxDistance ? targetDistance * Math.exp(-0.1235*targetDistance/SpeedController.MaxDistance) : 0;
         const angularSpeed = Math.atan2((targetPosition.y - robotPosition.y),(targetPosition.x - robotPosition.x))-robotPosition.th;
 
-        return { right: linearSpeed *Math.cos(angularSpeed*0.01 + robotPosition.th) , left: linearSpeed *Math.sin(angularSpeed*0.01 + robotPosition.th)   };
+        return { right: linearSpeed *Math.cos(angularSpeed) , left: linearSpeed *Math.sin(angularSpeed )   };
     }
 
 }
