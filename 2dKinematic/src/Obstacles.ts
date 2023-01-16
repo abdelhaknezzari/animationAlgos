@@ -35,8 +35,11 @@ export class Obstacles {
             Array.from({ length: this.canvas.height }, (_, key) => key).map(num => { return { x: this.canvas.width, y: num }; }) as [Point],
             Array.from({ length: this.canvas.width  }, (_, key) => key).map(num => { return { x: num, y: this.canvas.height}; }) as [Point],
             Array.from({ length: this.canvas.width  }, (_, key) => key).map(num => { return { x: num, y: 0}; }) as [Point],
-            Array.from({ length: this.canvas.width*0.7  }, (_, key) => key).map(num => { return { x: num, y: this.canvas.height*0.3 }; }) as [Point],
-            Array.from({ length: this.canvas.width*0.7  }, (_, key) => key).map(num => { return { x: this.canvas.width - num, y: this.canvas.height*0.7 }; }) as [Point]
+            Array.from({ length: this.canvas.width*0.15}, (_, key) => key).map(num => { return { x: this.canvas.height*0.3 , y: this.canvas.height*0.45-num }; }) as [Point],
+            Array.from({ length: this.canvas.width*0.15}, (_, key) => key).map(num => { return { x: this.canvas.height*0.7 , y: this.canvas.height*0.70-num }; }) as [Point],
+            Array.from({ length: this.canvas.width*0.11}, (_, key) => key).map(num => { return { x: this.canvas.height*0.7 , y: this.canvas.height-num }; }) as [Point],
+            Array.from({ length: this.canvas.width*0.7}, (_, key) => key).map(num => { return { x: num, y: this.canvas.height*0.3 }; }) as [Point],
+            Array.from({ length: this.canvas.width*0.7}, (_, key) => key).map(num => { return { x: this.canvas.width - num, y: this.canvas.height*0.7 }; }) as [Point]
         ];
     }
 

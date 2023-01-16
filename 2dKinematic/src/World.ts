@@ -80,7 +80,7 @@ export class World {
         
         const distances = this.obstacles.calcDistances(this.robot.getPosition());
         const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-        const speed = this.conroller.calcWheelsSpeed2(sensorDistances, this.robot.getSpeed());
+        const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition());
         this.robot.animate(speed);
         this.obstacles.show();
         break;
