@@ -3,6 +3,7 @@ import { Position, Robot } from "./Robot";
 import {  Sides } from "./SonarSensors";
 import controller1 from "./SpeedController1";
 import controller2 from "./SpeedController2";
+import SpeedController3 from "./SpeedController3";
 
 export interface Speed {
     right: number,
@@ -17,6 +18,6 @@ export class SpeedController {
     lastDistanceToObstacles: SensorDistance[];
    
     calcWheelsSpeed(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
-        return controller2.calcWheelsSpeed(sensorObstDistances,currentSpeed,robotPosition);
+        return SpeedController3.calcWheelsSpeed(sensorObstDistances,currentSpeed,robotPosition);
     }
 }

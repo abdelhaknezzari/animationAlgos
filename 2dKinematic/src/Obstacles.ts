@@ -1,4 +1,4 @@
-import { Position } from "./Robot";
+import Robot, { Position } from "./Robot";
 import { Sensor, Sides } from "./SonarSensors";
 
 export interface PointMinimum {
@@ -13,6 +13,13 @@ export interface Point extends PointMinimum {
 export interface SensorDistance {
     side: Sides,
     d:number // distance from robot
+}
+
+export interface RobotObstacleDistances {
+    frontLeft: number, 
+    frontRight:number, 
+    backLeft:number, 
+    backRight:number; 
 }
 
 export class Obstacles {
@@ -73,7 +80,7 @@ export class Obstacles {
         return sensDist;
      }
 
-    calcDistances( robotPosition:Position) {
+    calcDistances( robotPosition:Position):Point[] {
         return this.walls.reduce( (prv,cur) => prv.concat(cur),[] ).map(
             wallPoint => {
                return {
@@ -113,6 +120,14 @@ export class Obstacles {
         this.context.fill();
     }
 
+    calcDistancesAsJson( ):RobotObstacleDistances {
+        const sensorObstDistances = this.calcDistancesFromSensors(Robot.getSensors());
+        const frontLeft = sensorObstDistances.find(sens => sens.side === Sides.frontLeft).d;
+        const frontRight = sensorObstDistances.find(sens => sens.side === Sides.frontRight).d;
+        const backLeft = sensorObstDistances.find(sens => sens.side === Sides.backLeft).d;
+        const backRight = sensorObstDistances.find(sens => sens.side === Sides.backRight).d;
+        return { frontLeft, frontRight, backLeft, backRight };
+    }
 }
 
 export default new Obstacles();

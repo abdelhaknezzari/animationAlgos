@@ -196,3 +196,5 @@ export class Robot {
         this.stop = !this.stop;
     }
 }
+
+export default new Robot();
