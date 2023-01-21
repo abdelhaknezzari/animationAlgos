@@ -3,6 +3,7 @@ import { Position } from "./Robot";
 import { Sides } from "./SonarSensors";
 import { Speed, SpeedController } from "./SpeedController";
 import SpeedControllerIf from "./SpeedControllerIf";
+import Target from "./Target";
 
 
 
@@ -15,7 +16,28 @@ export default new (class SpeedController3 implements SpeedController {
     lastDistanceToObstacles: SensorDistance[];
 
 
+    wrap2Pi(ang:number) : number {
+        return ang > Math.PI ? (-2*Math.PI +ang) : ang;
+    }
+
+    calDist2Target(targetPosition: Position, robotPosition: Position): number {
+        return Math.sqrt(Math.pow(targetPosition.x - robotPosition.x, 2) + Math.pow(targetPosition.y - robotPosition.y, 2));
+    }
+
     calcWheelsSpeed(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
+        //const obstacleDist = this.getObstacleDist(sensorObstDistances);
+        const targetPosition = Target.getPosition();
+        const targetDistance = this.calDist2Target(targetPosition, robotPosition);
+
+        const linearSpeed = targetDistance;
+        const angularSpeed = 0.02* Math.atan2((targetPosition.y - robotPosition.y), (targetPosition.x - robotPosition.x)) ;
+
+        return { right: linearSpeed * Math.cos(angularSpeed), left: linearSpeed * Math.sin(angularSpeed) };
+
+    }
+
+
+    calcWheelsSpeed2(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
         const obstacleDist = this.getObstacleDist(sensorObstDistances);
 
         let calcSpeed: Speed = { left: SpeedController.MaxSpeed / 4, right: SpeedController.MaxSpeed / 4 };
@@ -61,9 +83,6 @@ export default new (class SpeedController3 implements SpeedController {
     }
 
     calcPulse(dist:number): number {
-        return 1/(1+Math.exp(-Math.abs( (dist- SpeedController.MaxDistance)/ SpeedController.MaxDistance )));
-
-
-    
+        return dist<SpeedController.MaxDistance? 1/(1+Math.exp(-Math.abs(dist))):0;
     }
 });
