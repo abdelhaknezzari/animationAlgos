@@ -1,5 +1,5 @@
 import { RobotObstacleDistances, SensorDistance } from "./Obstacles";
-import { Position } from "./Robot";
+import { Position,Robot } from "./Robot";
 import { Sides } from "./SonarSensors";
 import { Speed, SpeedController } from "./SpeedController";
 import SpeedControllerIf from "./SpeedControllerIf";
@@ -29,10 +29,12 @@ export default new (class SpeedController3 implements SpeedController {
         const targetPosition = Target.getPosition();
         const targetDistance = this.calDist2Target(targetPosition, robotPosition);
 
-        const linearSpeed = targetDistance;
-        const angularSpeed = 0.02* Math.atan2((targetPosition.y - robotPosition.y), (targetPosition.x - robotPosition.x)) ;
+        const linearSpeed  = targetDistance;
+        const angularSpeed = Math.atan2((targetPosition.y - robotPosition.y), (targetPosition.x - robotPosition.x)) ;
 
-        return { right: linearSpeed * Math.cos(angularSpeed), left: linearSpeed * Math.sin(angularSpeed) };
+        
+
+        return { right: (2*linearSpeed - Robot.robotAttr.rW*angularSpeed)/2 , left: (2*linearSpeed + Robot.robotAttr.rW*angularSpeed)/2 };
 
     }
 

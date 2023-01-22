@@ -22,16 +22,38 @@
       <button id="start">start</button>
     </div>
     <div>
-
       <input id="angelStep" value="0.05">
       <button id="step">step</button>
     </div>
+    
+    <div>
+      <fieldset>
+        <legend>Select a maintenance drone:</legend>
+        <div>
+          <input type="radio" id="avoidObstaclesTarget" name="avoidObstaclesTarget" value="avoidObstaclesTarget"
+                 checked>
+          <label for="avoidObstaclesTarget">avoid Obstacles go to target</label>
+        </div>
+    
+        <div>
+          <input type="radio" id="goToTarget" name="goToTarget" value="goToTarget">
+          <label for="goToTarget">go to target</label>
+        </div>
+
+    </fieldset>
+      </div>
+
+
+
+
   </div>
 
 
   <div>
+    <div>
     <canvas id="canvas" style="border:1px solid #000000;" height="1000px" width="1000px">
     </canvas>
+  </div>
   </div>
   <script src="bundle.js"></script>
 

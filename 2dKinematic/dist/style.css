@@ -11,4 +11,14 @@ ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-  }
+}
+
+
+p,
+label {
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+input {
+    margin: 0.4rem;
+}

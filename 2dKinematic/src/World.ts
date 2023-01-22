@@ -4,6 +4,12 @@ import { Robot } from "./Robot";
 import { SpeedController } from "./SpeedController";
 import target from "./Target";
 
+export enum AlgorithmToRun {
+  goToTarget = "goToTarget",
+  avoidObstaclesTarget = "avoidObstaclesTarget"
+}
+
+
 export class World {
   robot = new Robot();
   obstacles = new Obstacles();
@@ -18,17 +24,13 @@ export class World {
 
   animate() {
     this.clear();
-
     const distances = this.obstacles.calcDistances(this.robot.getPosition());
     const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-
-    const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition());
+    const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition(),this.getAlogorithm());
     this.robot.animate(speed);
     this.obstacles.show();
     PathGenerator.showFrontObstaclePathAvoidance(sensorDistances, this.robot.getPosition());
     target.showTarget();
-
-
     window.requestAnimationFrame(() => { this.animate() });
   }
 
@@ -68,7 +70,8 @@ export class World {
         this.clear();
         const distances = this.obstacles.calcDistances(this.robot.getPosition());
         const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-        const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition());
+
+        const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition(),this.getAlogorithm());
         this.robot.animate(speed);
         this.obstacles.show();
         PathGenerator.showFrontObstaclePathAvoidance(sensorDistances, this.robot.getPosition());
@@ -80,7 +83,7 @@ export class World {
         
         const distances = this.obstacles.calcDistances(this.robot.getPosition());
         const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
-        const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition());
+        const speed = this.conroller.calcWheelsSpeed(sensorDistances, this.robot.getSpeed(),this.robot.getPosition(),this.getAlogorithm());
         this.robot.animate(speed);
         this.obstacles.show();
         break;
@@ -101,10 +104,26 @@ export class World {
         break;
       }
 
+      case AlgorithmToRun.avoidObstaclesTarget.toString():{
+        (document.getElementById(AlgorithmToRun.goToTarget.toString()) as unknown as {checked:boolean}).checked = false;
+        break;
+      }
+
+      case AlgorithmToRun.goToTarget.toString():{
+        (document.getElementById(AlgorithmToRun.avoidObstaclesTarget.toString()) as unknown as {checked:boolean}).checked = false;
+        break;
+      }
+    
+
     }
-
-
     this.obstacles.show();
 
+  }
+
+  getAlogorithm() : AlgorithmToRun{
+    if((document.getElementById(AlgorithmToRun.goToTarget.toString()) as unknown as {checked:boolean}).checked){
+      return AlgorithmToRun.goToTarget;
+    }
+    return AlgorithmToRun.avoidObstaclesTarget;
   }
 }

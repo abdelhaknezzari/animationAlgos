@@ -3,7 +3,7 @@ import { World } from "./World";
 
 const world = new World();
 
-["right", "left", "forward", "backward", "step", "stop"].forEach(button => {
+["right", "left", "forward", "backward", "step", "stop","avoidObstaclesTarget","goToTarget"].forEach(button => {
     document.getElementById(button).addEventListener("click", event => {
         world.handleEvent(event as PointerEvent);
     });
