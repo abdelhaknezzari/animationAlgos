@@ -6,9 +6,9 @@ import target from "./Target";
 
 export enum AlgorithmToRun {
   goToTarget = "goToTarget",
-  avoidObstaclesTarget = "avoidObstaclesTarget"
+  avoidObstaclesTarget = "avoidObstaclesTarget",
+  goToTargetByPath = "goToTargetByPath"
 }
-
 
 export class World {
   robot = new Robot();
@@ -105,25 +105,39 @@ export class World {
       }
 
       case AlgorithmToRun.avoidObstaclesTarget.toString():{
-        (document.getElementById(AlgorithmToRun.goToTarget.toString()) as unknown as {checked:boolean}).checked = false;
+        this.checkRadioButton(AlgorithmToRun.avoidObstaclesTarget.toString());
         break;
       }
 
       case AlgorithmToRun.goToTarget.toString():{
-        (document.getElementById(AlgorithmToRun.avoidObstaclesTarget.toString()) as unknown as {checked:boolean}).checked = false;
+        this.checkRadioButton(AlgorithmToRun.goToTarget.toString());
         break;
       }
-    
+
+      case AlgorithmToRun.goToTargetByPath.toString():{
+        this.checkRadioButton(AlgorithmToRun.goToTargetByPath.toString());
+        break;
+      }
 
     }
     this.obstacles.show();
+  }
 
+  private checkRadioButton(radioButton:string) {
+    Object.keys(AlgorithmToRun)
+    .forEach(algo => { (document.getElementById(algo) as unknown as { checked: boolean; }).checked = false;});
+    (document.getElementById(radioButton) as unknown as { checked: boolean; }).checked = true;
   }
 
   getAlogorithm() : AlgorithmToRun{
     if((document.getElementById(AlgorithmToRun.goToTarget.toString()) as unknown as {checked:boolean}).checked){
       return AlgorithmToRun.goToTarget;
     }
+
+    if((document.getElementById(AlgorithmToRun.goToTargetByPath.toString()) as unknown as {checked:boolean}).checked){
+      return AlgorithmToRun.goToTargetByPath;
+    }
+
     return AlgorithmToRun.avoidObstaclesTarget;
   }
 }

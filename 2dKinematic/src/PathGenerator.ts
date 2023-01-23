@@ -18,6 +18,30 @@ class PathGenerator {
         );
     }
 
+    wrap2Pi(ang: number): number {
+        return ang > Math.PI ? (-2 * Math.PI + ang) : ang;
+    }
+
+    generateCirclesAround(position: Position): Position[] {
+        return this.getRangeOfAngles(0, 2 * Math.PI, 0.2)
+            .map(angle => {
+                return {
+                    x: position.x + 100 * Math.cos(angle),
+                    y: position.y + 100 * Math.sin(angle),
+                    th: this.wrap2Pi(position.th + angle)
+                };
+            })
+            .map(center => this.getRangeOfAngles(0, 2 * Math.PI, 0.02)
+                .map(angl => {
+                    return {
+                        x: center.x + 100 * Math.cos(angl),
+                        y: center.y + 100 * Math.sin(angl),
+                        th:this.wrap2Pi(center.th + angl)
+                    };
+                })
+            ).reduce( (prv,cur) => prv.concat(cur),[] );
+    }
+
     showFrontObstaclePathAvoidance(sensors: SensorDistance[], robotPosition: Position) {
         const frontLeftDist = sensors.find(sens => sens.side === Sides.frontLeft).d;
         const frontRightDist = sensors.find(sens => sens.side === Sides.frontRight).d;

@@ -100,6 +100,29 @@ export class Obstacles {
         });
     }
 
+    getMaxDistanceObstacle( robotPosition:Position):Point {
+        debugger;
+        return this.walls.reduce( (prv,cur) => prv.concat(cur),[] )
+        .map(
+            wallPoint => {
+               return {
+                x:wallPoint.x,
+                y:wallPoint.y,
+                d: this.distanceBetweenRobotAndObstacle(robotPosition,wallPoint)      
+               } as Point;
+            }
+        ).sort( (prv,cur) =>  {
+            if( prv.d < cur.d) {
+                return 1;
+            } else if( prv.d > cur.d) {
+                return -1;
+            } else {
+                return 0;
+            };
+        })[0];
+    }
+
+
     distanceBetweenRobotAndObstacle( robotPosition:Position,point:Point){
           return Math.sqrt( Math.pow(robotPosition.x-point.x,2) + Math.pow(robotPosition.y-point.y,2));
     }

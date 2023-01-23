@@ -22,6 +22,10 @@ export default new (class Target {
             this.context.fillStyle = defaultColor;
     }
 
+    setPosition(target:Position):void {
+       this.target = target;
+    }
+
     getPosition():Position {
         return this.target;
     }
