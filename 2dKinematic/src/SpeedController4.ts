@@ -29,15 +29,18 @@ export default new (class SpeedController4 implements SpeedControllerIf {
     calcWheelsSpeed(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
         //    Control to reference pose using an intermediate direction:
         const targetPosition = Target.getPosition();
-        const targetNoObstacle = PathGenerator.nextTargtNoObstacle(robotPosition);
 
-        targetNoObstacle
-        .forEach(pos => {
-            Target.setPosition(pos);
-            Target.showTarget();
+        const targetNoObstacle = PathGenerator.nextTargtNoObstacle(robotPosition, Target.getPosition());
+
+        Target.showTarget(targetPosition);
+        targetNoObstacle?.forEach(pos => {
+            Target.showTarget(pos);
         });
-
-        return this.getCommandToTarget({x:targetNoObstacle[0].centerX,y:targetNoObstacle[0].centerY,th:Math.PI/4}, robotPosition);
+        if (targetNoObstacle && targetNoObstacle.length > 0) {
+            return this.getCommandToTarget({ x: targetNoObstacle[0].centerX, y: targetNoObstacle[0].centerY, th: robotPosition.th }, robotPosition);
+        } else {
+            return this.getCommandToTarget(targetPosition, robotPosition);
+        }
     }
 
 
@@ -66,7 +69,7 @@ export default new (class SpeedController4 implements SpeedControllerIf {
         return this.calcPulse(obstacles.frontLeft) * this.calcPulse(obstacles.frontRight);
     }
 
-  
+
     calcPulse(dist: number): number {
         return dist < SpeedController.MaxDistance ? 1 / (1 + Math.exp(-Math.abs(dist))) : 0;
     }

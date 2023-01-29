@@ -30,7 +30,7 @@ export class World {
     this.robot.animate(speed);
     this.obstacles.show();
     PathGenerator.showFrontObstaclePathAvoidance(sensorDistances, this.robot.getPosition());
-    target.showTarget();
+    target.showTarget(target.getPosition());
     window.requestAnimationFrame(() => { this.animate() });
   }
 

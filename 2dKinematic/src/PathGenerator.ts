@@ -25,35 +25,43 @@ class PathGenerator {
         return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     }
 
-    nextTargtNoObstacle(position: Position): 
-    {x:number,y:number,th:number,centerX:number,centerY:number}[] {
+    nextTargtNoObstacle(position: Position, target: Position): { x: number, y: number, th: number, centerX: number, centerY: number }[] {
         const obstacles = Obstacles.getObstacles()
-        .filter( obst => this.calDist(position,obst) < 250);
-        const centers = this.getRangeOfAngles(0, 2 * Math.PI, 0.2)
+            .filter(obst => this.calDist(position, obst) < 300);
+        const centers = this.getRangeOfAngles(0, 2 * Math.PI, 0.02)
+           .filter( angle=> angle > (position.th -Math.PI/2) && angle < (position.th +Math.PI/2)   )
             .map(angle => {
                 return {
-                    x: position.x + 100 * Math.cos(angle),
-                    y: position.y + 100 * Math.sin(angle),
-                    th: this.wrap2Pi(position.th + angle)
+                    x: position.x + 50 * Math.cos(angle),
+                    y: position.y + 50 * Math.sin(angle),
+                    th: this.wrap2Pi(position.th + angle),
                 };
-            }) as [{x:number,y:number,th:number}];
-           
-            for(const  center of centers){
-                const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
-                        .map(angl => {
-                            return {
-                                centerX:center.x,
-                                centerY:center.y,
-                                x: center.x + 100 * Math.cos(angl),
-                                y: center.y + 100 * Math.sin(angl),
-                                th: this.wrap2Pi(center.th + angl)
-                            };
-                        });
-                const noIntersect = circle.every(cir => !obstacles.some(obs => this.calDist( obs, cir ) < 10 ));
-                if(noIntersect) {
-                     return circle;
-                 }
+            }).map(center => {
+                return {
+                    x: center.x,
+                    y: center.y,
+                    th: center.th,
+                    d: this.calDist(center, target)
+                }
+            })
+            .sort((curr, prev) => curr.d-prev.d );
+
+        for (const center of centers) {
+            const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
+                .map(angl => {
+                    return {
+                        centerX: center.x,
+                        centerY: center.y,
+                        x: center.x + 80 * Math.cos(angl),
+                        y: center.y + 80 * Math.sin(angl),
+                        th: this.wrap2Pi(center.th + angl)
+                    };
+                });
+            const noIntersect = circle.every(cir => !obstacles.some(obs => this.calDist(obs, cir) < 10));
+            if (noIntersect) {
+                return circle;
             }
+        }
 
     }
 
