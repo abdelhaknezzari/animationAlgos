@@ -151,6 +151,13 @@ export class Obstacles {
         const backRight = sensorObstDistances.find(sens => sens.side === Sides.backRight).d;
         return { frontLeft, frontRight, backLeft, backRight };
     }
+
+    isPointIntersect(obstacles:Point[],point:Point):boolean {
+        return obstacles.some( obs => obs.x === point.x && obs.y === point.y);
+    }
+    getObstacles():Point[] {
+        return this.walls.reduce( (prv,cur) => prv.concat(cur),[] );
+    }
 }
 
 export default new Obstacles();
