@@ -29,32 +29,15 @@ export default new (class SpeedController4 implements SpeedControllerIf {
     calcWheelsSpeed(sensorObstDistances: SensorDistance[], currentSpeed: Speed, robotPosition: Position): Speed {
         //    Control to reference pose using an intermediate direction:
         const targetPosition = Target.getPosition();
+        const targetNoObstacle = PathGenerator.nextTargtNoObstacle(robotPosition);
 
-        // const farthestObstacle = Obstacles.getMaxDistanceObstacle(robotPosition);
-
-
-        PathGenerator.generateCirclesAround(robotPosition)
+        targetNoObstacle
         .forEach(pos => {
             Target.setPosition(pos);
             Target.showTarget();
         });
 
-        // PathGenerator.getRangeOfAngles(0, 2 * Math.PI, 0.02)
-        //     .forEach(angle => {
-        //         Target.setPosition({
-        //             x: robotPosition.x + 100 * Math.cos(angle),
-        //             y: robotPosition.y + 100 * Math.sin(angle), 
-        //             th: robotPosition.th + angle
-        //         });
-        //         Target.showTarget();
-        //      }
-        //     );
-
-
-
-        return { right: 0, left: 0 };
-
-        //  return this.getCommandToTarget((farthestObstacle as unknown as Position), robotPosition);
+        return this.getCommandToTarget({x:targetNoObstacle[0].centerX,y:targetNoObstacle[0].centerY,th:Math.PI/4}, robotPosition);
     }
 
 

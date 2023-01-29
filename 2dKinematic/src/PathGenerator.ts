@@ -9,7 +9,6 @@ class PathGenerator {
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
         this.context = this.canvas.getContext("2d");
-
     }
 
     getRangeOfAngles(from: number, to: number, step: number): number[] {
@@ -26,10 +25,11 @@ class PathGenerator {
         return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     }
 
-    generateCirclesAround(position: Position): Position[] {
+    nextTargtNoObstacle(position: Position): 
+    {x:number,y:number,th:number,centerX:number,centerY:number}[] {
         const obstacles = Obstacles.getObstacles()
-        .filter( obst => this.calDist(position,obst) > 200);
-        const circles1 = this.getRangeOfAngles(0, 2 * Math.PI, 0.2)
+        .filter( obst => this.calDist(position,obst) < 250);
+        const centers = this.getRangeOfAngles(0, 2 * Math.PI, 0.2)
             .map(angle => {
                 return {
                     x: position.x + 100 * Math.cos(angle),
@@ -37,37 +37,22 @@ class PathGenerator {
                     th: this.wrap2Pi(position.th + angle)
                 };
             }) as [{x:number,y:number,th:number}];
-
-   
-            for(const  circle of circles1){
-                const circles2 = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
+           
+            for(const  center of centers){
+                const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
                         .map(angl => {
                             return {
-                                x: circle.x + 100 * Math.cos(angl),
-                                y: circle.y + 100 * Math.sin(angl),
-                                th: this.wrap2Pi(circle.th + angl)
+                                centerX:center.x,
+                                centerY:center.y,
+                                x: center.x + 100 * Math.cos(angl),
+                                y: center.y + 100 * Math.sin(angl),
+                                th: this.wrap2Pi(center.th + angl)
                             };
                         });
-         //       const noIntersect = circles2.every(cir => obstacles
-                            // at least one point of the circle is intersecting with obstacle
-          //                  .every(obs => this.calDist( obs, cir ) > 5 ));
-
-               let intersect = false;
-
-               for(const cir of circles2 ) {
-                 for( const obs of obstacles) {
-                    if(this.calDist( obs, cir ) < 5) {
-                        intersect = true;
-                        break;
-                    }
+                const noIntersect = circle.every(cir => !obstacles.some(obs => this.calDist( obs, cir ) < 10 ));
+                if(noIntersect) {
+                     return circle;
                  }
-                 if(intersect) {
-                    break;
-                 }
-               }
-                if(!intersect) {
-                    return circles2;
-                }
             }
 
     }
