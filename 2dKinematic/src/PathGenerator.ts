@@ -29,7 +29,7 @@ class PathGenerator {
         const obstacles = Obstacles.getObstacles()
             .filter(obst => this.calDist(position, obst) < 300);
         const centers = this.getRangeOfAngles(0, 2 * Math.PI, 0.02)
-           .filter( angle=> angle > (position.th -Math.PI/2) && angle < (position.th +Math.PI/2)   )
+            .filter(angle => angle > (position.th - Math.PI/4 ) && angle < (position.th + Math.PI/4 ))
             .map(angle => {
                 return {
                     x: position.x + 50 * Math.cos(angle),
@@ -41,10 +41,15 @@ class PathGenerator {
                     x: center.x,
                     y: center.y,
                     th: center.th,
-                    d: this.calDist(center, target)
+                    dt: this.calDist(center, target),
+                    do:obstacles.map(obs => this.calDist(obs, center))
+                    .reduce((pre, cur) => cur > pre ? pre : cur)
                 }
             })
-            .sort((curr, prev) => curr.d-prev.d );
+            .filter(cir => 
+                 cir.do > 10 && cir.do < 150
+            )
+            .sort((curr, prev) => curr.dt - prev.dt);
 
         for (const center of centers) {
             const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
@@ -52,8 +57,8 @@ class PathGenerator {
                     return {
                         centerX: center.x,
                         centerY: center.y,
-                        x: center.x + 80 * Math.cos(angl),
-                        y: center.y + 80 * Math.sin(angl),
+                        x: center.x + 50 * Math.cos(angl),
+                        y: center.y + 50 * Math.sin(angl),
                         th: this.wrap2Pi(center.th + angl)
                     };
                 });
