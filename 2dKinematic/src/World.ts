@@ -68,6 +68,7 @@ export class World {
 
       case "step": {
         this.clear();
+        debugger;
         const distances = this.obstacles.calcDistances(this.robot.getPosition());
         const sensorDistances = this.obstacles.calcDistancesFromSensors(this.robot.getSensors());
 
