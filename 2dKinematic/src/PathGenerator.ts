@@ -1,4 +1,5 @@
 import Obstacles, { Point, SensorDistance } from "./Obstacles";
+import plot from "./Ploter";
 import { Position, Robot } from "./Robot";
 import { Sensor, Sides } from "./SonarSensors";
 
@@ -27,12 +28,21 @@ class PathGenerator {
         return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     }
 
-    nextTargtNoObstacle(position: Position, target: Position, cirR = 60,fromAngle=Math.PI / 5,toAngle=Math.PI / 5,targetsToAvoid:Position[]): CircleTarget[] {
+    getAnglesRange(currentAngle: number): number[] {
+        const th1 = this.wrap2Pi(currentAngle - Math.PI / 4);
+        const th2 = this.wrap2Pi(currentAngle + Math.PI / 4);
+        return th1 > th2 ? [th2, th1] : [th1, th2];
+    }
+
+    nextTargtNoObstacle(position: Position, target: Position, cirR = 60, fromAngle = Math.PI / 5, toAngle = Math.PI / 5, targetsToAvoid: Position[]): CircleTarget[] {
         if (cirR < 0) return;
         const obstacles = Obstacles.getObstacles()
             .filter(obst => this.calDist(position, obst) < 300);
-        const centers = this.getRangeOfAngles( -Math.PI, Math.PI, 0.02)
-            .filter(angle => angle > (position.th - Math.PI/4) && angle < (position.th + Math.PI/4))
+
+        const anglRanges = this.getAnglesRange(position.th);
+        const centers = this.getRangeOfAngles(0, 2*Math.PI, 0.02)
+            .map( th => this.wrap2Pi(th))
+            .filter(angle => angle > anglRanges[0] && angle < anglRanges[1])
             .map(angle => {
                 return {
                     x: position.x + cirR * Math.cos(angle),
@@ -49,12 +59,12 @@ class PathGenerator {
                         .reduce((pre, cur) => cur > pre ? pre : cur)
                 }
             })
-            .filter(cir => cir.do > 2 && 
-                cir.do < 150 && 
-                !targetsToAvoid?.some(tar => tar.x === cir.x &&  tar.y === cir.y )
-            ).sort((curr, prev) => curr.dt - prev.dt);
+            .filter(cir => cir.do > 2 )
+            .sort((curr, prev) => curr.dt - prev.dt);
 
+        const targetCircles = [];
         for (const center of centers) {
+            plot.point(center, "green")
             const circle = this.getRangeOfAngles(-Math.PI, Math.PI, 0.03)
                 .map(angl => {
                     return {
@@ -65,30 +75,36 @@ class PathGenerator {
                         th: this.wrap2Pi(center.th + angl)
                     };
                 });
-
+            targetCircles.push(circle);
+            // circle.forEach( point => plot.point(point,"orange"));
+        }
+        for (const circle of targetCircles) {
             const noIntersect = circle.every(cir => !obstacles.some(obs => this.calDist(obs, cir) < 5));
-           
             if (noIntersect) {
+                circle.forEach(point => plot.point(point));
                 return circle;
             }
         }
-       
+
+
+
     }
 
 
-    nextTargtNoObstacle2(position: Position, target: Position ): CircleTarget[] {
+    nextTargtNoObstacle2(position: Position, target: Position): CircleTarget[] {
         const obstacles = Obstacles.getObstacles()
             .filter(obst => this.calDist(position, obst) < 300);
 
         const centers = this.getRangeOfAngles(-Math.PI, Math.PI, 0.02)
-            .filter(angle => angle > (position.th - Math.PI/2) && 
-                             angle < (position.th + Math.PI/2))
+            .filter(angle => angle > (position.th - Math.PI / 2) &&
+                angle < (position.th + Math.PI / 2))
             .map(angle => {
                 return {
                     x: position.x + 50 * Math.cos(angle),
                     y: position.y + 50 * Math.sin(angle),
                     th: this.wrap2Pi(position.th + angle)
-                };})
+                };
+            })
             .map(center => {
                 return {
                     x: center.x,
@@ -97,8 +113,9 @@ class PathGenerator {
                     dt: this.calDist(center, target),
                     do: obstacles.map(obs => this.calDist(obs, center))
                         .reduce((pre, cur) => cur > pre ? pre : cur)
-                }})
-            .sort((curr, prev) => -prev.do +curr.do );
+                }
+            })
+            .sort((curr, prev) => -prev.do + curr.do);
 
         for (const center of centers) {
             const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
@@ -111,15 +128,15 @@ class PathGenerator {
                         th: this.wrap2Pi(center.th + angl)
                     };
                 });
-                
+
 
             const noIntersect = circle.every(cir => !obstacles.some(obs => this.calDist(obs, cir) < 5));
-           
+
             if (noIntersect) {
                 return circle;
             }
         }
-       
+
     }
 
     showFrontObstaclePathAvoidance(sensors: SensorDistance[], robotPosition: Position) {

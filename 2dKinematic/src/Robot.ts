@@ -195,6 +195,14 @@ export class Robot {
     toggleStop(){
         this.stop = !this.stop;
     }
+
+    continue(){
+        this.stop = false;
+    }
+
+    freeze(){
+        this.stop = true;
+    }
 }
 
 export default new Robot();
