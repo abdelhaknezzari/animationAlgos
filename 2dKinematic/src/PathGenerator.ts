@@ -14,7 +14,7 @@ class PathGenerator {
         this.context = this.canvas.getContext("2d");
     }
 
-    getRangeOfAngles(from: number, to: number, step: number): number[] {
+    getRangeBetween(from: number, to: number, step: number): number[] {
         return Array.from({ length: Math.ceil(Math.abs((to - from) / step)) }, (x, i) => i).map(
             indx => step > 0 ? from + indx * step : to + indx * step
         );
@@ -28,10 +28,22 @@ class PathGenerator {
         return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     }
 
+    wrapAngleInPI(th:number):number {
+        th = th < -Math.PI ? th % Math.PI + Math.PI : th;
+        th = th > Math.PI ? th % Math.PI - Math.PI : th;
+        return th;
+    }
+
     getAnglesRange(currentAngle: number): number[] {
-        const th1 = this.wrap2Pi(currentAngle - Math.PI / 4);
-        const th2 = this.wrap2Pi(currentAngle + Math.PI / 4);
-        return th1 > th2 ? [th2, th1] : [th1, th2];
+       if (currentAngle > -Math.PI && currentAngle <= - 0.75*Math.PI  )
+         //TODO more interval
+          return this.getRangeBetween(-Math.PI,currentAngle-Math.PI,0.02)
+                  .concat( this.getRangeBetween(Math.abs(currentAngle),Math.PI,0.02) );
+        else if(currentAngle >= 0.75* Math.PI && currentAngle <= Math.PI)
+           return this.getRangeBetween(currentAngle-Math.PI/4,Math.PI,0.02)
+           //TODO more interval
+                .concat(this.getRangeBetween(-Math.PI,-currentAngle+Math.PI/4,0.02));
+        else return this.getRangeBetween(currentAngle-Math.PI/4,currentAngle+Math.PI/4,0.02);
     }
 
     nextTargtNoObstacle(position: Position, target: Position, cirR = 60, fromAngle = Math.PI / 5, toAngle = Math.PI / 5, targetsToAvoid: Position[]): CircleTarget[] {
@@ -39,10 +51,11 @@ class PathGenerator {
         const obstacles = Obstacles.getObstacles()
             .filter(obst => this.calDist(position, obst) < 300);
 
-        const anglRanges = this.getAnglesRange(position.th);
-        const centers = this.getRangeOfAngles(0, 2*Math.PI, 0.02)
-            .map( th => this.wrap2Pi(th))
-            .filter(angle => angle > anglRanges[0] && angle < anglRanges[1])
+      // const anglRanges = this.getAnglesRange(position.th);
+
+        const centers = this.getAnglesRange(position.th)
+           // .map( th => this.wrap2Pi(th))
+          //  .filter(angle => angle > anglRanges[0] && angle < anglRanges[1])
             .map(angle => {
                 return {
                     x: position.x + cirR * Math.cos(angle),
@@ -65,7 +78,7 @@ class PathGenerator {
         const targetCircles = [];
         for (const center of centers) {
             plot.point(center, "green")
-            const circle = this.getRangeOfAngles(-Math.PI, Math.PI, 0.03)
+            const circle = this.getRangeBetween(-Math.PI, Math.PI, 0.03)
                 .map(angl => {
                     return {
                         centerX: center.x,
@@ -95,7 +108,7 @@ class PathGenerator {
         const obstacles = Obstacles.getObstacles()
             .filter(obst => this.calDist(position, obst) < 300);
 
-        const centers = this.getRangeOfAngles(-Math.PI, Math.PI, 0.02)
+        const centers = this.getRangeBetween(-Math.PI, Math.PI, 0.02)
             .filter(angle => angle > (position.th - Math.PI / 2) &&
                 angle < (position.th + Math.PI / 2))
             .map(angle => {
@@ -118,7 +131,7 @@ class PathGenerator {
             .sort((curr, prev) => -prev.do + curr.do);
 
         for (const center of centers) {
-            const circle = this.getRangeOfAngles(0, 2 * Math.PI, 0.03)
+            const circle = this.getRangeBetween(0, 2 * Math.PI, 0.03)
                 .map(angl => {
                     return {
                         centerX: center.x,
@@ -161,7 +174,7 @@ class PathGenerator {
                 const arcX = robotPosition.x;
                 const arcY = robotPosition.y + 1.5 * Robot.robotAttr.rW;
 
-                this.getRangeOfAngles(Math.PI / 2, 0, -0.02).forEach(angle => {
+                this.getRangeBetween(Math.PI / 2, 0, -0.02).forEach(angle => {
                     this.plotCircle({
                         x: arcX + 1.5 * Robot.robotAttr.rW * Math.cos(angle),
                         y: arcY + 1.5 * Robot.robotAttr.rW * Math.sin(angle),

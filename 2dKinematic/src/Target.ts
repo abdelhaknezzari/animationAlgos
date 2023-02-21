@@ -1,3 +1,4 @@
+import Ploter from "./Ploter";
 import { Position } from "./Robot";
 
 export default new (class Target {
@@ -17,14 +18,8 @@ export default new (class Target {
     }
 
     showTarget(target:Position):void {
-        this.context.beginPath();
-        const defaultColor = this.context.fillStyle;
-        this.context.fillStyle = "blue";
-        this.context.arc(target.x, target.y, 3, 0, Math.PI * 2, true);
-        this.context.closePath();
-        this.context.fill();
-        this.context.fillStyle = defaultColor;
-}
+        Ploter.point(target);
+    }
 
     setPosition(target:Position):void {
        this.target = target;
